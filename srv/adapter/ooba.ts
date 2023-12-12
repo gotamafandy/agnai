@@ -4,6 +4,7 @@ import { AdapterProps, ModelAdapter } from './type'
 import { websocketStream } from './stream'
 import { getStoppingStrings } from './prompt'
 import { eventGenerator } from '/common/util'
+import { AppSchema } from '/common/types'
 
 export const handleOoba: ModelAdapter = async function* (opts) {
   const { char, members, user, prompt, log, gen } = opts
@@ -22,7 +23,7 @@ export const handleOoba: ModelAdapter = async function* (opts) {
       ? llamaStream(baseUrl, body)
       : gen.streamResponse
       ? await websocketStream({ url: baseUrl + '/api/v1/stream', body })
-      : getTextgenCompletion('Textgen', `${baseUrl}/api/v1/generate`, body, {})
+      : getTextgenCompletion('Textgen', `${baseUrl}/v1/completions`, body, {})
 
   let accumulated = ''
   let result = ''
@@ -63,6 +64,7 @@ export async function* getTextgenCompletion(
   payload: any,
   headers: any
 ): AsyncGenerator<any> {
+
   const resp = await needle('post', url, JSON.stringify(payload), {
     json: true,
     headers: Object.assign(headers, { Accept: 'application/json' }),
@@ -85,8 +87,11 @@ export async function* getTextgenCompletion(
     return
   }
 
+  console.log(resp.body)
+
   try {
-    const text = resp.body.results?.[0]?.text
+
+    const text = resp.body.choices?.[0]?.text
     if (!text) {
       yield {
         error: `${service} request failed: Received empty response. Please try again.`,
@@ -100,11 +105,95 @@ export async function* getTextgenCompletion(
   }
 }
 
+function extractNameAndMessage(msg: string) {
+  const messageParts = msg.split(':')
+  
+  // Extracting the name and message
+  const name = messageParts[0].trim();
+  const message = messageParts.slice(1).join(':').trim()
+  
+  return [name, message]
+}
+
+function getChatMLPromptInfo(opts: AdapterProps, promptInfo: AppSchema.PromptInfo) {
+  const { gen, char, parts } = opts
+
+  if (parts.sampleChat != null) {
+    promptInfo['examples'] = `<|im_start|>system\nHow ${char.name} speaks:\n${parts.sampleChat.join('\n')}<|im_end|>\n`
+  }
+  if (gen.promptOrderFormat == 'ChatML') {
+    promptInfo['story'] = `<|im_start|>system\n${parts.persona.replace('{{char}}', char.name)}<|im_end|>\n`   
+  }
+}
+
 export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
-  const { gen, prompt } = opts
+  const { gen, prompt, lines, char, parts, sender } = opts
+
+  // Get the last message
+  const lastMessage = lines[lines.length - 1]
+
+  const [name, message] = extractNameAndMessage(lastMessage)
+   
+  const promptInfo: AppSchema.PromptInfo = {
+    char_description: parts.persona.replace('{{char}}', char.name),
+    scenario: parts.scenario?.replace('{{char}}', char.name).replace('{{user}}', sender.handle),
+    ujb: parts.ujb,
+    lines: lines,
+    name2: char.name,
+    cid2: char._id,
+    name1: sender.handle,
+    source: 'agnai',
+    authorNotes: char.insert,
+    user_message: {
+      name: name,
+      is_user: name === sender.handle,
+      mes: message
+    }
+  }
+
+  if (gen.promptOrderFormat == 'ChatML') {
+    getChatMLPromptInfo(opts, promptInfo)
+  }
+
+  /*
+  const promptInfo = {
+    user_message: lastUserChat,
+    all_anchors: allAnchors,
+    summarize: (extension_prompts['1_memory']?.value || ''),
+    authors_note: (extension_prompts['2_floating_prompt']?.value || ''),
+    smart_context: (extension_prompts['chromadb']?.value || ''),
+    world_info: worldInfoString,
+    story: storyString,
+    examples: examplesString,
+    mesSend: mesSendString,
+    generated_prompt_cache: generatedPromptCache,
+    cid2: this_chid,
+    name2: name2,
+    name1: name1,
+    char_description: description,
+    char_personality: personality,
+    scenario: scenario,
+    world_info_before: worldInfoBefore,
+    world_info_after: worldInfoAfter,
+    max_context: this_max_context,
+    source: 'sillyTavern',
+    padding: power_user.token_padding,
+    bias: promptBias,
+    type: type,
+    quiet_prompt: quiet_prompt,
+    cycle_prompt: cyclePrompt,
+    system_prompt_override: system,
+    jailbreak_prompt_override: jailbreak,
+    persona_description: persona,
+    instruction: isInstruct ? substituteParams(power_user.prefer_character_prompt && system ? system : power_user.instruct.system_prompt) : '',
+    user_persona: (power_user.persona_description || ''),
+  }
+  */
+
   if (gen.service === 'kobold' && gen.thirdPartyFormat === 'llamacpp') {
     const body = {
       prompt,
+      prompt_info: promptInfo,
       temperature: gen.temp,
       min_p: gen.minP,
       top_k: gen.topK,
@@ -165,6 +254,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
   if (gen.service === 'kobold' && gen.thirdPartyFormat === 'exllamav2') {
     const body = {
       request_id: opts.requestId,
+      prompt_info: promptInfo,
       action: 'infer',
       text: prompt,
       stream: true,
@@ -185,6 +275,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
       n: 1,
       max_context_length: gen.maxContextLength,
       prompt,
+      prompt_info: promptInfo,
       max_length: gen.maxTokens,
       rep_pen: gen.repetitionPenalty,
       temperature: gen.temp,
@@ -202,10 +293,14 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     return body
   }
 
+  const stoppingStrings = getStoppingStrings(opts, stops)
+
   const body = {
     prompt,
     context_limit: gen.maxContextLength,
+    prompt_info: promptInfo,
     max_new_tokens: gen.maxTokens,
+    max_tokens: gen.maxTokens,
     do_sample: gen.doSample ?? true,
     temperature: gen.temp,
     top_p: gen.topP,
@@ -229,7 +324,8 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     truncation_length: gen.maxContextLength || 2048,
     ban_eos_token: gen.banEosToken || false,
     skip_special_tokens: gen.skipSpecialTokens ?? true,
-    stopping_strings: getStoppingStrings(opts, stops),
+    stopping_strings: stoppingStrings,
+    stop: stoppingStrings,
     tfs: gen.tailFreeSampling,
     mirostat_mode: gen.mirostatTau ? 2 : 0,
     mirostat_tau: gen.mirostatTau,
@@ -238,7 +334,9 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     placeholders: opts.placeholders,
     lists: opts.lists,
     previous: opts.previous,
+    legacy_api: false
   }
+  
   return body
 }
 

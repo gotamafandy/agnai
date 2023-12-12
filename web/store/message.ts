@@ -761,6 +761,8 @@ subscribe(
 
     const isUserMsg = !!msg.userId
 
+    console.log('CREATED CUY')
+
     msgStore.setState({
       lastInference: {
         requestId: body.requestId!,
