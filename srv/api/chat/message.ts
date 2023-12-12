@@ -4,10 +4,16 @@ import { createTextStreamV2, getResponseEntities } from '../../adapter/generate'
 import { AppRequest, StatusError, errors, handle } from '../wrap'
 import { sendGuest, sendMany, sendOne } from '../ws'
 import { obtainLock, releaseLock } from './lock'
-import { AppSchema } from '../../../common/types/schema'
+import { AppSchema } from '/common/types'
 import { v4 } from 'uuid'
 import { Response } from 'express'
 import { publishMany } from '../ws/handle'
+import { runGuidance } from '/common/guidance/guidance-parser'
+import { cyoaTemplate } from '/common/mode-templates'
+import { fillPromptWithLines } from '/common/prompt'
+import { getTokenCounter } from '/srv/tokenize'
+import { translateText } from '/srv/translate'
+import { AppLog } from '/srv/logger'
 
 type GenRequest = UnwrapBody<typeof genValidator>
 
@@ -79,7 +85,8 @@ export const createMessage = handle(async (req) => {
 
   if (!userId) {
     const guest = req.socketId
-    const newMsg = newMessage(v4(), chatId, body.text, {
+
+    const newMsg = newMessage(v4(), chatId, body.text, body.text, {
       userId: impersonate ? undefined : 'anon',
       characterId: impersonate?._id,
       ooc: body.kind === 'ooc',
@@ -96,6 +103,7 @@ export const createMessage = handle(async (req) => {
     const userMsg = await store.msgs.createChatMessage({
       chatId,
       message: body.text,
+      translatedMessage: body.text,
       characterId: impersonate?._id,
       senderId: userId,
       ooc: body.kind === 'ooc',
@@ -107,6 +115,35 @@ export const createMessage = handle(async (req) => {
 
   return { success: true }
 })
+
+const translateMessage = async (
+  body: any,
+  chatId: string,
+  log: AppLog,
+  targetLanguage: string,
+  user?: AppSchema.User
+) => {
+  const translation = user?.translation
+  const text = body.text
+
+  if (text == null || translation == null) throw errors.BadRequest
+
+  if (['translate_both', 'translate_inputs'].includes(translation.direction ?? '')) {
+    const translateService = translation.type
+
+    return await translateText(
+      {
+        chatId,
+        text,
+        service: translateService,
+        to: targetLanguage,
+      },
+      log
+    )
+  }
+
+  return undefined
+}
 
 export const generateMessageV2 = handle(async (req, res) => {
   const { userId, body, params, log } = req
@@ -160,9 +197,16 @@ export const generateMessageV2 = handle(async (req, res) => {
   if (body.kind === 'send' || body.kind === 'ooc') {
     await ensureBotMembership(chat, members, impersonate)
 
+    const result = await translateMessage(body, chatId, log, 'en', body.user)
+
+    const text = body.text ?? ''
+
+    const translatedText = result?.translated != null ? result.translated.text : text
+
     userMsg = await store.msgs.createChatMessage({
       chatId,
-      message: body.text!,
+      message: text,
+      translatedMessage: translatedText,
       characterId: impersonate?._id,
       senderId: userId,
       ooc: body.kind === 'ooc',
@@ -179,9 +223,16 @@ export const generateMessageV2 = handle(async (req, res) => {
 
     sendMany(members, { type: 'message-created', msg: userMsg, chatId })
   } else if (body.kind.startsWith('send-event:')) {
+    const result = await translateMessage(body, chatId, log, 'en', body.user)
+
+    const text = body.text ?? ''
+
+    const translatedText = result?.translated != null ? result.translated.text : text
+
     userMsg = await store.msgs.createChatMessage({
       chatId,
-      message: body.text!,
+      message: text,
+      translatedMessage: translatedText,
       characterId: replyAs?._id,
       senderId: undefined,
       ooc: false,
@@ -340,6 +391,7 @@ export const generateMessageV2 = handle(async (req, res) => {
         characterId: replyAs._id,
         senderId: body.kind === 'self' ? userId : undefined,
         message: responseText,
+        translatedMessage: responseText,
         adapter,
         ooc: false,
         actions,
@@ -399,6 +451,7 @@ export const generateMessageV2 = handle(async (req, res) => {
           chatId,
           characterId: replyAs._id,
           message: responseText,
+          translatedMessage: responseText,
           adapter,
           actions,
           ooc: false,
@@ -465,14 +518,26 @@ async function handleGuestGenerate(body: GenRequest, req: AppRequest, res: Respo
   // For authenticated users we will verify parts of the payload
   let newMsg: AppSchema.ChatMessage | undefined
   if (body.kind === 'send' || body.kind === 'ooc') {
-    newMsg = newMessage(v4(), chatId, body.text!, {
+    const result = await translateMessage(body, chatId, log, 'en', body.user)
+
+    const text = body.text ?? ''
+
+    const translatedText = result?.translated != null ? result.translated.text : text
+
+    newMsg = newMessage(v4(), chatId, text, translatedText, {
       userId: 'anon',
       characterId: body.impersonate?._id,
       ooc: body.kind === 'ooc',
       event: undefined,
     })
   } else if (body.kind.startsWith('send-event:')) {
-    newMsg = newMessage(v4(), chatId, body.text!, {
+    const result = await translateMessage(body, chatId, log, 'en', body.user)
+
+    const text = body.text ?? ''
+
+    const translatedText = result?.translated != null ? result.translated.text : text
+
+    newMsg = newMessage(v4(), chatId, text, translatedText, {
       characterId: replyAs?._id,
       ooc: false,
       event: body.kind.split(':')[1] as AppSchema.EventTypes,
@@ -555,7 +620,7 @@ async function handleGuestGenerate(body: GenRequest, req: AppRequest, res: Respo
     retries = [body.replacing.msg].concat(retries).concat(body.replacing.retries || [])
   }
 
-  const response = newMessage(messageId, chatId, responseText, {
+  const response = newMessage(messageId, chatId, responseText, responseText, {
     characterId,
     userId: senderId,
     ooc: false,
@@ -592,6 +657,7 @@ function newMessage(
   messageId: string,
   chatId: string,
   text: string,
+  translatedText: string,
   props: {
     userId?: string
     characterId?: string
@@ -609,6 +675,7 @@ function newMessage(
     kind: 'chat-message',
     retries: props.retries || [],
     msg: text,
+    translatedMsg: translatedText,
     ...props,
   }
   return userMsg

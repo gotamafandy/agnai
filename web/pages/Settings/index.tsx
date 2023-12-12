@@ -7,8 +7,8 @@ import {
   getFormEntries,
   getStrictForm,
   setComponentPageTitle,
-} from '../../shared/util'
-import { settingStore, userStore } from '../../store'
+} from '/web/shared/util'
+import { settingStore, userStore } from '/web/store'
 import UISettings from './UISettings'
 import Tabs from '../../shared/Tabs'
 import AISettings from './AISettings'
@@ -22,6 +22,7 @@ import { THIRDPARTY_FORMATS } from '/common/adapters'
 import { SubscriptionPage } from '../Profile/SubscriptionPage'
 import { useTransContext } from '@mbarzda/solid-i18next'
 import { TFunction } from 'i18next'
+import { TranslationSettings } from '/web/pages/Settings/Translation/TranslationSettings'
 
 const settingTabs: (t: TFunction) => Record<Tab, string> = (t: TFunction) => ({
   ai: t('ai_settings'),
@@ -32,6 +33,7 @@ const settingTabs: (t: TFunction) => Record<Tab, string> = (t: TFunction) => ({
   subscription: t('Subscription'),
 })
 
+
 enum MainTab {
   ai = 0,
   ui = 1,
@@ -39,6 +41,7 @@ enum MainTab {
   voice = 3,
   guest = 4,
   subscription = 5,
+  translate = 6,
 }
 
 type Tab = keyof typeof MainTab
@@ -85,7 +88,7 @@ const Settings: Component<{ footer?: (children: any) => void }> = (props) => {
     }
   })
 
-  const tabs: Tab[] = ['ai', 'ui', 'image', 'voice']
+  const tabs: Tab[] = ['ai', 'ui', 'image', 'voice', 'translate']
 
   if (state.loggedIn && (state.tiers.length > 0 || state.user?.billing)) {
     tabs.push('subscription')
@@ -122,6 +125,10 @@ const Settings: Component<{ footer?: (children: any) => void }> = (props) => {
       textToSpeechEnabled,
       textToSpeechFilterActions,
 
+      translationType,
+      translationDirection,
+      translationLanguage,
+
       elevenLabsApiKey,
 
       summariseChat,
@@ -141,6 +148,11 @@ const Settings: Component<{ footer?: (children: any) => void }> = (props) => {
         autoRecord: speechToTextAutoRecord,
       },
       elevenLabsApiKey,
+      translation: {
+        type: translationType,
+        direction: translationDirection,
+        targetLanguage: translationLanguage,
+      },
       texttospeech: {
         enabled: textToSpeechEnabled,
         filterActions: textToSpeechFilterActions,
@@ -230,6 +242,10 @@ const Settings: Component<{ footer?: (children: any) => void }> = (props) => {
             <VoiceSettings />
           </div>
 
+          <div class={currentTab() === 'translate' ? tabClass : 'hidden'}>
+            <TranslationSettings />
+          </div>
+
           <div class={currentTab() === 'subscription' ? tabClass : 'hidden'}>
             <SubscriptionPage />
           </div>
@@ -300,6 +316,10 @@ const settingsForm = {
   textToSpeechFilterActions: 'boolean',
 
   elevenLabsApiKey: 'string?',
+
+  translationType: ['googletranslate'],
+  translationDirection: ['none', 'translate_both', 'translate_inputs', 'translate_responses'],
+  translationLanguage: 'string',
 } as const
 
 function getAdapterConfig(entries: Array<[string, any]>) {

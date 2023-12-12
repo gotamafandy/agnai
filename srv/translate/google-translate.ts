@@ -1,12 +1,11 @@
-import { TranslateAdapter } from '/srv/translate/types'
-import needle from 'needle'
+import { TranslateAdapter, TranslateResponse } from '/srv/translate/types'
 
-const handleTranslate: TranslateAdapter = async (
-  { text, from, to },
-  log,
-  guestId?: string
-): Promise<string> => {
-  const { generateRequestUrl, normaliseResponse } = require('google-translate-api-browser')
+const handleTranslate: TranslateAdapter = async ({
+  text,
+  from,
+  to,
+}): Promise<TranslateResponse> => {
+  const { translate } = require('google-translate-api-browser')
 
   const fromTo: { from?: string; to: string } = { to: to }
 
@@ -14,25 +13,13 @@ const handleTranslate: TranslateAdapter = async (
     fromTo['from'] = from
   }
 
-  console.log(`Input text: ${text}`)
+  const res = await translate(text, fromTo)
 
-  const url = generateRequestUrl(text, fromTo)
-
-  const result = await needle('get', url)
-
-  if (result.statusCode !== 200) {
-    throw new Error(
-      result.body.message ||
-        result.body.details?.message ||
-        `Error ${result.statusCode}: ${JSON.stringify(result.body)}`
-    )
+  return {
+    text: res.text,
+    originalText: text,
+    service: 'googletranslate',
   }
-
-  const response = normaliseResponse(JSON.parse(result.body))
-
-  console.log(response)
-
-  return response
 }
 
 export const googleTranslateHandler = {

@@ -14,6 +14,7 @@ import type { TTSSettings, VoiceSettings } from './texttospeech-schema'
 import { UISettings } from './ui'
 import { FullSprite } from './sprite'
 import { ModelFormat } from '../presets/templates'
+import { TranslationSettings } from './translation-schema'
 
 export type AllDoc =
   | AppSchema.Announcement
@@ -46,22 +47,22 @@ export type ChatBranch = {
 
 export namespace AppSchema {
   export interface PromptInfo {
-    char_description: string;
-    scenario?: string;
-    ujb?: string;
-    lines: string[];
-    name2: string;
-    cid2: string;
-    name1: string;
-    source: string;
-    authorNotes?: AppSchema.Character['insert'];
+    char_description: string
+    scenario?: string
+    ujb?: string
+    lines: string[]
+    name2: string
+    cid2: string
+    name1: string
+    source: string
+    authorNotes?: AppSchema.Character['insert']
     user_message: {
-      name: string;
-      is_user: boolean;
-      mes: string;
-    };
-    examples?: string;
-    story?: string;
+      name: string
+      is_user: boolean
+      mes: string
+    }
+    examples?: string
+    story?: string
   }
 
   export interface Configuration {
@@ -251,6 +252,8 @@ export namespace AppSchema {
       autoRecord: boolean
     }
 
+    translation?: TranslationSettings
+
     texttospeech?: TTSSettings
 
     images?: ImageSettings
@@ -376,6 +379,7 @@ export namespace AppSchema {
     chatId: string
     msg: string
     retries: string[]
+    translatedMsg: string
     extras?: string[]
     characterId?: string
     userId?: string

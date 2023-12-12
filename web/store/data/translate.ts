@@ -1,13 +1,14 @@
 import { api, isLoggedIn } from '/web/store/api'
 import { getStore } from '/web/store/create'
 import { loadItem } from '/web/store/data/storage'
-import { TranslateService } from '/common/types/translate-schema'
+import { TranslationService } from '/common/types/translation-schema'
+import { TranslateResponse } from '/srv/translate/types'
 
 type GenerateOpts = {
   chatId?: string
   messageId?: string
   text: string
-  translateService: TranslateService
+  service: TranslationService
   to: string
   from?: string
 }
@@ -16,17 +17,16 @@ export const translateApi = {
   translate,
 }
 
-async function translate({ chatId, messageId, text, translateService, to, from }: GenerateOpts) {
+async function translate({ chatId, messageId, text, service, to, from }: GenerateOpts) {
   const user = getUserEntity()
-  const res = await api.post<{ success: boolean }>(`/chat/${chatId}/translate`, {
+  return await api.post<{ data: TranslateResponse }>(`/chat/${chatId}/translate`, {
     user,
     messageId,
     text,
-    translateService,
+    service,
     to,
     from,
   })
-  return res
 }
 
 function getUserEntity() {

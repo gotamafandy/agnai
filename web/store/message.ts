@@ -1,5 +1,5 @@
 import { v4 } from 'uuid'
-import { AppSchema } from '../../common/types/schema'
+import { AppSchema } from '/common/types'
 import { EVENTS, events } from '../emitter'
 import { createDebounce, getAssetUrl } from '../shared/util'
 import { isLoggedIn } from './api'
@@ -13,7 +13,7 @@ import { userStore } from './user'
 import { localApi } from './data/storage'
 import { chatStore } from './chat'
 import { voiceApi } from './data/voice'
-import { VoiceSettings, VoiceWebSynthesisSettings } from '../../common/types/texttospeech-schema'
+import { VoiceSettings, VoiceWebSynthesisSettings } from '/common/types'
 import { defaultCulture } from '../shared/CultureCodes'
 import { createSpeech, isNativeSpeechSupported, stopSpeech } from '../shared/Audio/speech'
 import { eventStore } from './event'
@@ -580,6 +580,7 @@ async function handleImage(chatId: string, image: string, messageId?: string) {
     chatId,
     kind: 'chat-message',
     msg: image,
+    translatedMsg: image,
     adapter: 'image',
     characterId: activeCharId,
     createdAt: new Date().toISOString(),
@@ -760,8 +761,6 @@ subscribe(
     const nextMsgs = msgs.concat(msg)
 
     const isUserMsg = !!msg.userId
-
-    console.log('CREATED CUY')
 
     msgStore.setState({
       lastInference: {

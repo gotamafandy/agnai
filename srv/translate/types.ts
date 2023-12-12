@@ -1,27 +1,24 @@
-import { TranslateService } from '/common/types/translate-schema'
-import { AppSchema } from '/common/types'
-import { AppLog } from '/srv/logger'
+import { TranslationService } from '/common/types/translation-schema'
 
 export type TranslateRequest = {
   text: string
   from?: string
   to: string
-  service: TranslateService
-  user: AppSchema.User
+  service: TranslationService
   chatId: string
-  messageId?: string
 }
 
-export type TranslateAdapter = (
-  opts: {
-    user: AppSchema.User
-    text: string
-    from?: string
-    to: string
-  },
-  log: AppLog,
-  guestId?: string
-) => Promise<string>
+export type TranslateResponse = {
+  service: TranslationService
+  text: string
+  originalText: string
+}
+
+export type TranslateAdapter = (opts: {
+  text: string
+  from?: string
+  to: string
+}) => Promise<TranslateResponse>
 
 export type TranslateHandler = {
   translate: TranslateAdapter

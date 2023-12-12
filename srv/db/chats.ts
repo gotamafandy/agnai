@@ -1,7 +1,7 @@
 import { v4 } from 'uuid'
 import { getCharacter } from './characters'
 import { db } from './client'
-import { AppSchema } from '../../common/types/schema'
+import { AppSchema } from '/common/types'
 import { now } from './util'
 import { StatusError, errors } from '../api/wrap'
 import { parseTemplate } from '/common/template-parser'
@@ -110,6 +110,7 @@ export async function create(
       _id: v4(),
       chatId: id,
       msg: parsed,
+      translatedMsg: parsed,
       characterId: char._id,
       createdAt: now(),
       updatedAt: now(),
@@ -278,6 +279,7 @@ export async function restartChat(
     kind: 'chat-message',
     chatId,
     msg: parsed,
+    translatedMsg: parsed,
     characterId: char._id,
     createdAt: now(),
     updatedAt: now(),

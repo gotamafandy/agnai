@@ -1,35 +1,30 @@
-import { TranslateHandler, TranslateRequest } from '/srv/translate/types'
-import { TranslateService } from '/common/types/translate-schema'
+import { TranslateHandler, TranslateRequest, TranslateResponse } from '/srv/translate/types'
+import { TranslationService } from '/common/types/translation-schema'
 import { googleTranslateHandler } from '/srv/translate/google-translate'
 import { AppLog } from '/srv/logger'
 
-export async function translateText(
-  { user, chatId, messageId, ...opts }: TranslateRequest,
-  log: AppLog,
-  guestId?: string
-) {
+export async function translateText({ chatId, ...opts }: TranslateRequest, log: AppLog) {
   const service = getTranslateService(opts.service)
 
   if (!service) return { output: undefined }
 
-  let translated: string | undefined
+  let translated: TranslateResponse | undefined
   //let error: any
 
   const text = opts.text
   const from = opts.from
   const to = opts.to
   try {
-    translated = await service.translate({ user, text, from, to }, log, guestId)
-
-    console.log(translated)
+    translated = await service.translate({ text, from, to })
   } catch (ex: any) {
-    //error = ex.message || ex
     log.error({ err: ex }, 'Failed to translate text')
   }
+
+  return { translated }
 }
 
 export function getTranslateService(
-  translateService?: TranslateService
+  translateService?: TranslationService
 ): TranslateHandler | undefined {
   switch (translateService) {
     case 'googletranslate':

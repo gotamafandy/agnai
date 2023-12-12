@@ -15,6 +15,7 @@ export type NewMessage = {
   _id?: string
   chatId: string
   message: string
+  translatedMessage: string
   characterId?: string
   senderId?: string
   adapter?: string
@@ -51,6 +52,7 @@ export async function createChatMessage(creating: NewMessage, ephemeral?: boolea
     userId: senderId,
     msg: message,
     retries: retries || [],
+    translatedMsg: message,
     adapter,
     actions,
     createdAt: new Date().toISOString(),
@@ -86,6 +88,7 @@ export async function importMessages(userId: string, messages: NewMessage[]) {
     handle: msg.handle || undefined,
     userId: msg.senderId ? msg.senderId : undefined,
     msg: msg.message,
+    translatedMsg: msg.message,
     adapter: msg.adapter,
     createdAt: new Date(start + i).toISOString(),
     updatedAt: new Date(start + i).toISOString(),

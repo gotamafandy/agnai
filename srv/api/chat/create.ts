@@ -1,7 +1,7 @@
 import { assertValid } from '/common/valid'
-import { PERSONA_FORMATS } from '../../../common/adapters'
-import { store } from '../../db'
-import { NewMessage } from '../../db/messages'
+import { PERSONA_FORMATS } from '/common/adapters'
+import { store } from '/srv/db'
+import { NewMessage } from '/srv/db/messages'
 import { handle, StatusError } from '../wrap'
 
 export const createChat = handle(async ({ body, user, userId }) => {
@@ -59,6 +59,7 @@ export const importChat = handle(async ({ body, userId }) => {
       messages: [
         {
           msg: 'string',
+          translatedMsg: 'string',
           characterId: 'string?',
           userId: 'string?',
           handle: 'string?',
@@ -102,6 +103,7 @@ export const importChat = handle(async ({ body, userId }) => {
   const messages = body.messages.map<NewMessage>((msg) => ({
     chatId: chat._id,
     message: msg.msg,
+    translatedMessage: msg.translatedMsg,
     adapter: 'import',
     characterId: msg.characterId ? character._id : undefined,
     senderId: msg.userId ? msg.userId : undefined,

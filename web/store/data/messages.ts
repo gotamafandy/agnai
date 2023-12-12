@@ -749,6 +749,7 @@ function emptyMsg(
     updatedAt: new Date().toISOString(),
     msg: '',
     retries: [],
+    translatedMsg: '',
     ...props,
   }
 }
