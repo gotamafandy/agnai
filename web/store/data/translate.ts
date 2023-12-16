@@ -5,8 +5,7 @@ import { TranslationService } from '/common/types/translation-schema'
 import { TranslateResponse } from '/srv/translate/types'
 
 type GenerateOpts = {
-  chatId?: string
-  messageId?: string
+  chatId: string
   text: string
   service: TranslationService
   to: string
@@ -17,11 +16,11 @@ export const translateApi = {
   translate,
 }
 
-async function translate({ chatId, messageId, text, service, to, from }: GenerateOpts) {
+async function translate({ chatId, text, service, to, from }: GenerateOpts) {
   const user = getUserEntity()
+
   return await api.post<{ data: TranslateResponse }>(`/chat/${chatId}/translate`, {
     user,
-    messageId,
     text,
     service,
     to,
@@ -34,6 +33,5 @@ function getUserEntity() {
     const { user } = getStore('user').getState()
     return user
   }
-  const user = loadItem('config')
-  return user
+  return loadItem('config')
 }

@@ -201,7 +201,7 @@ export const generateMessageV2 = handle(async (req, res) => {
 
     const text = body.text ?? ''
 
-    const translatedText = result?.translated != null ? result.translated.text : text
+    const translatedText = result?.data != null ? result.data.text : text
 
     userMsg = await store.msgs.createChatMessage({
       chatId,
@@ -227,7 +227,7 @@ export const generateMessageV2 = handle(async (req, res) => {
 
     const text = body.text ?? ''
 
-    const translatedText = result?.translated != null ? result.translated.text : text
+    const translatedText = result?.data != null ? result.data.text : text
 
     userMsg = await store.msgs.createChatMessage({
       chatId,
@@ -522,7 +522,7 @@ async function handleGuestGenerate(body: GenRequest, req: AppRequest, res: Respo
 
     const text = body.text ?? ''
 
-    const translatedText = result?.translated != null ? result.translated.text : text
+    const translatedText = result?.data != null ? result.data.text : text
 
     newMsg = newMessage(v4(), chatId, text, translatedText, {
       userId: 'anon',
@@ -535,7 +535,7 @@ async function handleGuestGenerate(body: GenRequest, req: AppRequest, res: Respo
 
     const text = body.text ?? ''
 
-    const translatedText = result?.translated != null ? result.translated.text : text
+    const translatedText = result?.data != null ? result.data.text : text
 
     newMsg = newMessage(v4(), chatId, text, translatedText, {
       characterId: replyAs?._id,

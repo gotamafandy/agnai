@@ -657,7 +657,7 @@ function getMessageContent(ctx: ContextState, props: MessageProps, state: ChatSt
     return { type: 'waiting', message: '', class: 'not-streaming' }
   }
 
-  let message = props.msg.msg
+  let message = props.msg.translatedMsg
 
   if (props.last && props.swipe) message = props.swipe
   if (props.msg.event && !props.showHiddenEvents) {

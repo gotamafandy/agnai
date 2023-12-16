@@ -20,7 +20,7 @@ export async function translateText({ chatId, ...opts }: TranslateRequest, log: 
     log.error({ err: ex }, 'Failed to translate text')
   }
 
-  return { translated }
+  return { data: translated }
 }
 
 export function getTranslateService(
