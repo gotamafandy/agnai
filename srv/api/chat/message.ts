@@ -181,9 +181,6 @@ export const generateMessageV2 = handle(async (req, res) => {
     // Replace line with translated text
     replaceLineWithTranslatedText(body.lines, body.text!, translatedText)
 
-    console.log('LINES')
-    console.log(body.lines)
-
     userMsg = await store.msgs.createChatMessage({
       chatId,
       message: translatedText,
