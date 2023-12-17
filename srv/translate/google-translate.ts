@@ -14,6 +14,8 @@ const handleTranslate: TranslateAdapter = async ({
     fromTo['from'] = from
   }
 
+  console.log(`Google Translate, Original Text: ${text}`)
+
   const url = generateRequestUrl(text, fromTo)
 
   return new Promise<TranslateResponse>(
@@ -31,6 +33,9 @@ const handleTranslate: TranslateAdapter = async ({
         resp.on('end', () => {
           try {
             const result = normaliseResponse(JSON.parse(data))
+
+            console.log(`Google Translate, Translated Text: ${result.text}`)
+
             resolve({ text: result.text, originalText: text, service: 'googletranslate' })
           } catch (error) {
             reject(error)

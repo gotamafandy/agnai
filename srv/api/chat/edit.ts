@@ -162,15 +162,17 @@ export const updateMessageProps = handle(async ({ body, params, userId }) => {
   return message
 })
 
-export const restartChat = handle(async ({ params, body, userId }) => {
+export const restartChat = handle(async ({ params, body, log, userId }) => {
   assertValid({ impersonating: 'string?' }, body)
   const profile = await store.users.getProfile(userId)
+  const translation = await store.users.getTranslation(userId)
+
   const impersonate = body.impersonating
     ? await store.characters.getCharacter(userId, body.impersonating)
     : undefined
 
   const chatId = params.id
-  await store.chats.restartChat(userId, chatId, profile!, impersonate)
+  await store.chats.restartChat(userId, chatId, log, profile!, translation, impersonate)
   return { success: true }
 })
 

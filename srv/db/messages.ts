@@ -114,7 +114,7 @@ export async function editMessage(
   update: Partial<
     Pick<
       AppSchema.ChatMessage,
-      'msg' | 'actions' | 'adapter' | 'meta' | 'state' | 'extras' | 'retries'
+      'msg' | 'translatedMsg' | 'actions' | 'adapter' | 'meta' | 'state' | 'extras' | 'retries'
     >
   >
 ) {

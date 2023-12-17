@@ -1,7 +1,8 @@
 import { TranslateHandler, TranslateRequest, TranslateResponse } from '/srv/translate/types'
-import { TranslationService } from '/common/types/translation-schema'
+import { TranslationService, TranslationSettings } from '/common/types/translation-schema'
 import { googleTranslateHandler } from '/srv/translate/google-translate'
 import { AppLog } from '/srv/logger'
+import { errors } from '/srv/api/wrap'
 
 export async function translateText({ chatId, ...opts }: TranslateRequest, log: AppLog) {
   const service = getTranslateService(opts.service)
@@ -21,6 +22,34 @@ export async function translateText({ chatId, ...opts }: TranslateRequest, log: 
   }
 
   return { data: translated }
+}
+
+export async function translateMessage(
+  chatId: string,
+  log: AppLog,
+  targetLanguage: string,
+  text?: string,
+  translation?: TranslationSettings
+) {
+  if (text == null || translation == null) throw errors.BadRequest
+
+  if (translation.direction !== 'none') {
+    const translateService = translation.type
+
+    const result = await translateText(
+      {
+        chatId,
+        text,
+        service: translateService,
+        to: targetLanguage,
+      },
+      log
+    )
+
+    return result?.data != null ? result.data.text : text
+  }
+
+  return text
 }
 
 export function getTranslateService(

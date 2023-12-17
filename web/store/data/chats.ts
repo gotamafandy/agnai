@@ -1,6 +1,6 @@
 import type { ImportChat, NewChat } from '../chat'
 import { v4 } from 'uuid'
-import { AppSchema } from '../../../common/types/schema'
+import { AppSchema } from '/common/types'
 import { api, isLoggedIn } from '../api'
 import { loadItem, localApi, saveChats } from './storage'
 import { replace } from '/common/util'
@@ -144,8 +144,7 @@ export async function editChat(
   update: Partial<AppSchema.Chat> & { useOverrides: boolean | undefined }
 ) {
   if (isLoggedIn()) {
-    const res = await api.method<AppSchema.Chat>('put', `/chat/${id}`, update)
-    return res
+    return await api.method<AppSchema.Chat>('put', `/chat/${id}`, update)
   }
 
   const chats = await loadItem('chats')
@@ -236,7 +235,7 @@ export async function importChat(characterId: string, props: ImportChat) {
     chatId: chat._id,
     kind: 'chat-message',
     msg: msg.msg,
-    translatedMsg: msg.msg,
+    translatedMsg: msg.translatedMsg,
     characterId: msg.characterId ? char._id : undefined,
     userId: msg.userId ? localApi.ID : undefined,
     createdAt: new Date(start + i).toISOString(),

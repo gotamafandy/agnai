@@ -4,7 +4,7 @@ import { store } from '/srv/db'
 import { NewMessage } from '/srv/db/messages'
 import { handle, StatusError } from '../wrap'
 
-export const createChat = handle(async ({ body, user, userId }) => {
+export const createChat = handle(async ({ body, user, log, userId }) => {
   assertValid(
     {
       genPreset: 'string?',
@@ -30,11 +30,13 @@ export const createChat = handle(async ({ body, user, userId }) => {
 
   const character = await store.characters.getCharacter(userId, body.characterId)
   const profile = await store.users.getProfile(userId)
+  const translation = await store.users.getTranslation(userId)
+
   const impersonating = body.impersonating
     ? await store.characters.getCharacter(userId, body.impersonating)
     : undefined
 
-  const chat = await store.chats.create(
+  return await store.chats.create(
     body.characterId,
     {
       ...body,
@@ -42,13 +44,14 @@ export const createChat = handle(async ({ body, user, userId }) => {
       userId: user?.userId!,
       scenarioIds: body.scenarioId ? [body.scenarioId] : [],
     },
+    log,
     profile!,
+    translation,
     impersonating
   )
-  return chat
 })
 
-export const importChat = handle(async ({ body, userId }) => {
+export const importChat = handle(async ({ body, log, userId }) => {
   assertValid(
     {
       characterId: 'string',
@@ -85,6 +88,7 @@ export const importChat = handle(async ({ body, userId }) => {
   }
 
   const profile = await store.users.getProfile(userId)
+  const translation = await store.users.getTranslation(userId)
 
   const chat = await store.chats.create(
     body.characterId,
@@ -97,7 +101,9 @@ export const importChat = handle(async ({ body, userId }) => {
       userId,
       scenarioIds: body.scenarioId ? [body.scenarioId] : [],
     },
-    profile!
+    log,
+    profile!,
+    translation
   )
 
   const messages = body.messages.map<NewMessage>((msg) => ({

@@ -6,6 +6,9 @@ import { now } from './util'
 import { StatusError, errors } from '../api/wrap'
 import { parseTemplate } from '/common/template-parser'
 import { config } from '../config'
+import { TranslationSettings } from '/common/types/translation-schema'
+import { AppLog } from '/srv/logger'
+import { translateMessage, translateText } from '/srv/translate'
 
 export async function getChatOnly(id: string) {
   const chat = await db('chat').findOne({ _id: id })
@@ -67,7 +70,9 @@ export async function create(
     | 'genPreset'
     | 'mode'
   >,
+  log: AppLog,
   profile: AppSchema.Profile,
+  translation?: TranslationSettings,
   impersonating?: AppSchema.Character
 ) {
   const id = `${v4()}`
@@ -105,12 +110,21 @@ export async function create(
       impersonate: impersonating,
       sender: profile,
     })
+
+    const translatedText = await translateMessage(
+      id,
+      log,
+      translation?.targetLanguage ?? 'en',
+      parsed,
+      translation
+    )
+
     const msg: AppSchema.ChatMessage = {
       kind: 'chat-message',
       _id: v4(),
       chatId: id,
       msg: parsed,
-      translatedMsg: parsed,
+      translatedMsg: translatedText,
       characterId: char._id,
       createdAt: now(),
       updatedAt: now(),
@@ -253,7 +267,9 @@ export async function setChatCharacter(chatId: string, charId: string, state: bo
 export async function restartChat(
   userId: string,
   chatId: string,
+  log: AppLog,
   profile: AppSchema.Profile,
+  translation?: TranslationSettings,
   impersonate?: AppSchema.Character
 ) {
   const chat = await getChatOnly(chatId)
@@ -274,12 +290,20 @@ export async function restartChat(
     impersonate,
   })
 
+  const translatedText = await translateMessage(
+    chatId,
+    log,
+    translation?.targetLanguage ?? 'en',
+    parsed,
+    translation
+  )
+
   await db('chat-message').insertOne({
     _id: v4(),
     kind: 'chat-message',
     chatId,
     msg: parsed,
-    translatedMsg: parsed,
+    translatedMsg: translatedText,
     characterId: char._id,
     createdAt: now(),
     updatedAt: now(),
