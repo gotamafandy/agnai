@@ -136,6 +136,7 @@ export async function editCharacter(charId: string, { avatar: file, ...char }: U
     appendFormOptional(form, 'avatar', file)
     appendFormOptional(form, 'visualType', char.visualType)
     appendFormOptional(form, 'sprite', JSON.stringify(char.sprite))
+    strictAppendFormOptional(form, 'visibility', char.visibility)
 
     // v2 fields start here
     appendFormOptional(form, 'alternateGreetings', char.alternateGreetings, JSON.stringify)
@@ -194,6 +195,8 @@ export async function createCharacter(char: NewCharacter) {
     form.append('greeting', char.greeting)
     form.append('scenario', char.scenario)
     form.append('sampleChat', char.sampleChat)
+    form.append('visibility', char.visibility ?? 'private')
+
     appendFormOptional(form, 'persona', char.persona, JSON.stringify)
     appendFormOptional(form, 'description', char.description)
     appendFormOptional(form, 'appearance', char.appearance)
@@ -226,7 +229,12 @@ export async function createCharacter(char: NewCharacter) {
     ? char.originalAvatar
     : undefined
 
-  const newChar: AppSchema.Character = { ...props, ...baseChar(), avatar, _id: v4() }
+  const newChar: AppSchema.Character = {
+    ...props,
+    ...baseChar(),
+    avatar,
+    _id: v4(),
+  }
 
   const chars = await loadItem('characters')
   const next = chars.concat(newChar)

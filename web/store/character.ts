@@ -50,6 +50,7 @@ export type NewCharacter = UpdateCharacter &
     | 'creator'
     | 'characterVersion'
     | 'insert'
+    | 'visibility'
   > & {
     originalAvatar: any
   }

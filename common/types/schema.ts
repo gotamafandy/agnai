@@ -419,6 +419,7 @@ export namespace AppSchema {
     greeting: string
     scenario: string
     sampleChat: string
+    visibility: 'private' | 'public'
   }
 
   export interface Character extends BaseCharacter {

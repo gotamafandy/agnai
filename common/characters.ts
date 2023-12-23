@@ -12,6 +12,7 @@ export const defaultChars = {
         personality: ['kind', 'compassionate', 'caring', 'tender', 'forgiving', 'enthusiastic'],
       },
     },
+    visibility: 'public',
     sampleChat:
       '{{user}}: I have some big and important news to share!\n{{char}}: *{{char}} appears genuinely excited* What is the exciting news?',
     scenario:
@@ -22,7 +23,7 @@ export const defaultChars = {
 } satisfies {
   [key: string]: Pick<
     AppSchema.Character,
-    'name' | 'persona' | 'sampleChat' | 'scenario' | 'greeting'
+    'name' | 'persona' | 'sampleChat' | 'scenario' | 'greeting' | 'visibility'
   >
 }
 
@@ -50,6 +51,7 @@ export function exportCharacter(char: AppSchema.Character, target: 'tavern' | 'o
           description: formatCharacter(char.name, char.persona),
           personality: '',
           mes_example: char.sampleChat,
+          visibility: char.visibility,
 
           // new v2 fields
           creator_notes: char.description ?? '',

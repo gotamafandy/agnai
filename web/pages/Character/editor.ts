@@ -35,6 +35,7 @@ type EditState = {
   creator: string
   characterVersion: string
   postHistoryInstructions: string
+  visibility: 'public' | 'private'
   insert?: {
     prompt: string
     depth: number
@@ -110,6 +111,7 @@ const initState: EditState = {
     prompt: '',
     depth: 3,
   },
+  visibility: 'private',
   systemPrompt: '',
 
   visualType: 'avatar',
@@ -364,6 +366,7 @@ function getPayload(ev: any, state: EditState, original?: NewCharacter) {
     creator: body.creator ?? '',
     extensions: original?.extensions,
     characterVersion: body.characterVersion ?? '',
+    visibility: state.visibility ?? 'private',
     persona: {
       kind: state.personaKind,
       attributes: persona.attributes,

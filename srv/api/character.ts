@@ -33,6 +33,7 @@ const characterValidator = {
   voice: 'string?',
   voiceDisabled: 'string?',
   tags: 'string?',
+  visibility: 'any',
 
   // v2 fields start here
   alternateGreetings: 'string?',
@@ -53,6 +54,7 @@ const newCharacterValidator = {
   sampleChat: 'string',
   persona: 'string',
   originalAvatar: 'string?',
+  visibility: 'any',
 } as const
 
 const personaValidator = {
@@ -98,6 +100,7 @@ const createCharacter = handle(async (req) => {
     scenario: body.scenario,
     greeting: body.greeting,
     visualType: body.visualType,
+    visibility: body.visibility,
     sprite,
     avatar: body.originalAvatar,
     favorite: false,
@@ -158,6 +161,7 @@ const editCharacter = handle(async (req) => {
     scenario: body.scenario,
     sampleChat: body.sampleChat,
     visualType: body.visualType,
+    visibility: body.visibility,
     sprite: body.sprite ? JSON.parse(body.sprite) : undefined,
     alternateGreetings,
     characterBook: characterBook ?? null,

@@ -116,6 +116,11 @@ export const CreateCharacterForm: Component<{
     sample: 0,
   })
 
+  const charVisibilities = [
+    { label: 'Private', value: 'private' },
+    { label: 'Public', value: 'public' },
+  ]
+
   const [genService, setGenService] = createSignal<string>(editor.genOptions()[0]?.value || '')
   const [creating, setCreating] = createSignal(false)
   const [showBuilder, setShowBuilder] = createSignal(false)
@@ -421,7 +426,27 @@ export const CreateCharacterForm: Component<{
                   tokenCount={(v) => setTokens((prev) => ({ ...prev, name: v }))}
                 />
               </Card>
-
+              <Card>
+                <div>
+                  <FormLabel
+                    label={<div class="flex items-center gap-1">Visibility</div>}
+                    helperText={
+                      <>
+                        <p>
+                          Character visibility, public: anyone can see it, private: only you can
+                          see. it
+                        </p>
+                      </>
+                    }
+                  />
+                  <Select
+                    fieldName="visibility"
+                    items={charVisibilities}
+                    value={editor.state.visibility}
+                    onChange={(state) => editor.update({ visibility: state.value as any })}
+                  />
+                </div>
+              </Card>
               <Card class="flex w-full flex-col">
                 <FormLabel
                   label={t('description_or_creators_note')}

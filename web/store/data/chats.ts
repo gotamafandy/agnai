@@ -264,6 +264,18 @@ export async function deleteChat(chatId: string) {
 export async function getAllChats() {
   if (isLoggedIn()) {
     const res = await api.get<{ chats: AllChat[]; characters: AppSchema.Character[] }>('/chat')
+
+    // Apply public characters from anon
+    const characters = await loadItem('characters')
+
+    const publicCharacters = characters.filter((e) => e.visibility === 'public')
+
+    console.log(characters)
+
+    if (res.status == 200) {
+      res.result?.characters?.concat(publicCharacters)
+    }
+
     return res
   }
 

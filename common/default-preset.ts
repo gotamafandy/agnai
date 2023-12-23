@@ -9,11 +9,13 @@ import { replicatePresets } from './presets/replicate'
 import { scalePresets } from './presets/scale'
 import { openRouterPresets } from './presets/openrouter'
 import { agnaiPresets } from './presets/agnaistic'
+import { mistralOpenOrcaPresets } from '/common/presets/mistralopenorca'
 
 const builtinPresets = {
   ...agnaiPresets,
   ...hordePresets,
   ...koboldPresets,
+  ...mistralOpenOrcaPresets,
   ...novelPresets,
   ...openaiPresets,
   ...replicatePresets,

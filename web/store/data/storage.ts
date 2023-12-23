@@ -332,6 +332,8 @@ export async function loadItem<TKey extends keyof typeof KEYS>(
   local?: boolean
 ): Promise<LocalStorage[TKey]> {
   if (local || !selfHosting()) {
+    console.log(`LOAD ITEM: ${key}`)
+
     const item = await storage.getItem(KEYS[key])
     if (item) {
       const parsed = JSON.parse(item)
