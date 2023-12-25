@@ -105,8 +105,6 @@ export async function create(
 
   await db('chat').insertOne(doc)
 
-  console.log('CREATE CHAT 1')
-
   if (props.greeting) {
     const { parsed } = await parseTemplate(props.greeting, {
       chat: doc,
@@ -115,9 +113,6 @@ export async function create(
       sender: profile,
     })
 
-    console.log('TRANS')
-    console.log(translation)
-
     const translatedText = await translateMessage(
       id,
       log,
@@ -125,9 +120,6 @@ export async function create(
       parsed,
       translation
     )
-
-    console.log('CREATE CHAT 2')
-    console.log(translatedText)
 
     const msg: AppSchema.ChatMessage = {
       kind: 'chat-message',

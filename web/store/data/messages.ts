@@ -339,9 +339,6 @@ async function createActiveChatPrompt(
 
   const props = await getGenerateProps(opts, active)
 
-  console.log('PROPS')
-  console.log(props)
-
   const entities = props.entities
 
   const resolvedScenario = resolveScenario(entities.chat, entities.char, entities.scenarios || [])
