@@ -60,7 +60,7 @@ const CreateChatForm: Component<{
   const user = userStore((s) => ({ ...s.user, sub: s.sub }))
   const state = characterStore((s) => ({
     char: s.editing,
-    chars: (s.characters?.list || []).filter((c) => !isLoggedIn() || c.userId === user._id),
+    chars: (s.characters?.list || []).filter((c) => !isLoggedIn() || c.visibility === 'public'),
     loaded: s.characters.loaded,
   }))
 

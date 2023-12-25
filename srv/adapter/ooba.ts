@@ -115,9 +115,7 @@ function getChatMLPromptInfo(opts: AdapterProps, promptInfo: AppSchema.PromptInf
   const { gen, char, parts } = opts
 
   if (parts.sampleChat != null) {
-    promptInfo['examples'] = `<|im_start|>system\nHow ${char.name} speaks:\n${parts.sampleChat.join(
-      '\n'
-    )}<|im_end|>\n`
+    promptInfo['examples'] = `This is how ${char.name} should talk: ${parts.sampleChat.join('\n').replace(new RegExp('\r', 'g'), '')}`
   }
   if (gen.promptOrderFormat == 'ChatML') {
     promptInfo['story'] = `<|im_start|>system\n${parts.persona.replace(
@@ -141,7 +139,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     ujb: parts.ujb,
     lines: lines,
     name2: char.name,
-    cid2: char._id,
+    cid2: `agnai-${char.name.toLowerCase().replace(/\s+/g, '-')}`,
     name1: sender.handle,
     source: 'agnai',
     authorNotes: char.insert,
@@ -155,41 +153,6 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
   if (gen.promptOrderFormat == 'ChatML') {
     getChatMLPromptInfo(opts, promptInfo)
   }
-
-  /*
-  const promptInfo = {
-    user_message: lastUserChat,
-    all_anchors: allAnchors,
-    summarize: (extension_prompts['1_memory']?.value || ''),
-    authors_note: (extension_prompts['2_floating_prompt']?.value || ''),
-    smart_context: (extension_prompts['chromadb']?.value || ''),
-    world_info: worldInfoString,
-    story: storyString,
-    examples: examplesString,
-    mesSend: mesSendString,
-    generated_prompt_cache: generatedPromptCache,
-    cid2: this_chid,
-    name2: name2,
-    name1: name1,
-    char_description: description,
-    char_personality: personality,
-    scenario: scenario,
-    world_info_before: worldInfoBefore,
-    world_info_after: worldInfoAfter,
-    max_context: this_max_context,
-    source: 'sillyTavern',
-    padding: power_user.token_padding,
-    bias: promptBias,
-    type: type,
-    quiet_prompt: quiet_prompt,
-    cycle_prompt: cyclePrompt,
-    system_prompt_override: system,
-    jailbreak_prompt_override: jailbreak,
-    persona_description: persona,
-    instruction: isInstruct ? substituteParams(power_user.prefer_character_prompt && system ? system : power_user.instruct.system_prompt) : '',
-    user_persona: (power_user.persona_description || ''),
-  }
-  */
 
   if (gen.service === 'kobold' && gen.thirdPartyFormat === 'llamacpp') {
     const body = {

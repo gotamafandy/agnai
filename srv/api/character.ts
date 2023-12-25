@@ -130,6 +130,12 @@ const createCharacter = handle(async (req) => {
   return char
 })
 
+const getPublicCharacters = handle(async () => {
+  const chars = await store.characters.getPublicCharacters()
+
+  return { characters: chars }
+})
+
 const getCharacters = handle(async ({ userId }) => {
   const chars = await store.characters.getCharacters(userId!)
   return { characters: chars }
@@ -266,11 +272,12 @@ export const createImage = handle(async ({ body, userId, socketId, log }) => {
 })
 
 router.post('/image', createImage)
+router.get('/public', getPublicCharacters)
+router.get('/:id', getCharacter)
 router.use(loggedIn)
 router.post('/', createCharacter)
 router.get('/', getCharacters)
 router.post('/:id', editCharacter)
-router.get('/:id', getCharacter)
 router.delete('/:id', deleteCharacter)
 router.post('/:id/favorite', editCharacterFavorite)
 router.delete('/:id/avatar', removeAvatar)

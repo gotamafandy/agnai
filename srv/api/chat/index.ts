@@ -9,7 +9,7 @@ import {
   updateMessageProps,
   swapMessage,
 } from './edit'
-import { getAllChats, getCharacterChats, getChatDetail } from './get'
+import { getAllChats, getCharacterChats, getChatDetail, getPublicCharacters } from './get'
 import { guestGenerateMsg } from './guest-msg'
 import { createImage } from './image'
 import { createInvite, acceptInvite, rejectInvite, getInvites, uninviteMember } from './invite'
@@ -34,6 +34,7 @@ router.post('/:id/guest-message', guestGenerateMsg)
 router.post('/:id/image', createImage)
 router.post('/:id/voice', textToSpeech)
 router.post('/:id/translate', translate)
+router.get('/public-characters', getPublicCharacters)
 
 router.use(loggedIn)
 router.get('/', getAllChats)

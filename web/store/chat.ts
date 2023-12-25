@@ -349,6 +349,7 @@ export const chatStore = createStore<ChatState>('chat', {
 
       yield { loaded: false }
       const res = await chatsApi.getAllChats()
+
       yield { lastFetched: Date.now(), loaded: true, allLoading: false }
       if (res.error) {
         toastStore.error(`Could not retrieve chats: ${res.error}`)
@@ -361,6 +362,7 @@ export const chatStore = createStore<ChatState>('chat', {
           map: toMap(res.result.characters),
           list: res.result.characters,
         }
+
         return { allChats: res.result.chats.sort(sortDesc), allChars }
       }
     },

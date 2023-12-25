@@ -1,6 +1,5 @@
 import { v4 } from 'uuid'
 import { NOVEL_MODELS } from '../../../common/adapters'
-import { defaultChars } from '../../../common/characters'
 import { AppSchema } from '../../../common/types/schema'
 import { api } from '../api'
 import { toastStore } from '../toasts'
@@ -71,14 +70,7 @@ type LocalStorage = {
 const localStore = new Map<keyof LocalStorage, any>()
 
 const fallbacks: { [key in StorageKey]: LocalStorage[key] } = {
-  characters: Object.values(defaultChars).map((char) => ({
-    _id: v4(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    kind: 'character',
-    userId: 'anon',
-    ...char,
-  })),
+  characters: [],
   chats: [],
   presets: [],
   config: {
@@ -258,6 +250,7 @@ export async function getMessages(
 ): Promise<AppSchema.ChatMessage[]> {
   if (!local && SELF_HOSTING) {
     const res = await api.get(`/json/messages/${chatId}`)
+
     if (res.result) return res.result
     if (res.error) {
       toastStore.error(`Failed to load messages: ${res.error}`)
@@ -269,6 +262,16 @@ export async function getMessages(
   if (!messages) return []
 
   return JSON.parse(messages) as AppSchema.ChatMessage[]
+}
+
+export async function getPublicCharacters() {
+  const characters = await storage.getItem('characters')
+
+  if (!characters) return []
+
+  const character_json = JSON.parse(characters) as AppSchema.Character[]
+
+  return character_json.filter((e) => e.visibility === 'public')
 }
 
 export async function getChatMessages(tree: AppSchema.ChatTree, leafId: string) {
@@ -332,8 +335,6 @@ export async function loadItem<TKey extends keyof typeof KEYS>(
   local?: boolean
 ): Promise<LocalStorage[TKey]> {
   if (local || !selfHosting()) {
-    console.log(`LOAD ITEM: ${key}`)
-
     const item = await storage.getItem(KEYS[key])
     if (item) {
       const parsed = JSON.parse(item)
@@ -386,6 +387,7 @@ export const localApi = {
   deleteChatMessages,
   loadItem,
   getMessages,
+  getPublicCharacters,
   getChatMessages,
   KEYS,
   ID,

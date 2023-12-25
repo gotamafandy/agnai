@@ -1,8 +1,6 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import { config } from '../config'
-import { AppSchema } from '../../common/types/schema'
-import { defaultChars } from '../../common/characters'
 
 const ALGO = 'aes-192-cbc'
 const KEY = crypto.scryptSync(config.jwtSecret, 'salt', 24)
@@ -31,17 +29,6 @@ export function decryptText(text: string) {
   if (!iv) throw new Error('IV not found')
   const decipher = crypto.createDecipheriv(ALGO, KEY, Buffer.from(iv, 'hex'))
   return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8')
-}
-
-export const STARTER_CHARACTER: AppSchema.Character = {
-  _id: '',
-  userId: '',
-  kind: 'character',
-  createdAt: '',
-  updatedAt: '',
-  favorite: false,
-  visualType: 'avatar',
-  ...defaultChars.Robot,
 }
 
 export async function wait(ms: number) {

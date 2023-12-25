@@ -8,6 +8,7 @@ import { appendFormOptional, getAssetUrl, strictAppendFormOptional } from '/web/
 export const charsApi = {
   getCharacterDetail,
   getCharacters,
+  getPublicCharacters,
   removeAvatar,
   editAvatar,
   deleteCharacter,
@@ -23,14 +24,22 @@ async function getCharacterDetail(charId: string) {
     return res
   }
 
+  const res = await api.get(`/character/${charId}`)
+
   const chars = await loadItem('characters')
   const char = chars.find((ch) => ch._id === charId)
 
   if (char) {
     return localApi.result(char)
+  } else if (res.status == 200) {
+    return res
   } else {
     return localApi.error(`Character not found`)
   }
+}
+
+export async function getPublicCharacters() {
+  return await api.get('/character/public')
 }
 
 export async function getCharacters() {
@@ -39,7 +48,19 @@ export async function getCharacters() {
     return res
   }
 
-  const characters = await localApi.loadItem('characters')
+  const resp = await charsApi.getPublicCharacters()
+
+  let characters: AppSchema.Character[]
+
+  const localCharacters = await loadItem('characters')
+
+  if (resp.status == 200) {
+    characters = resp.result.characters
+    characters.push(...localCharacters)
+  } else {
+    characters = localCharacters
+  }
+
   const result = characters.map((ch) => ({
     _id: ch._id,
     name: ch.name,

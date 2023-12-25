@@ -8,7 +8,6 @@ import { NOVEL_MODELS } from '../../common/adapters'
 import { logger } from '../logger'
 import { errors, StatusError } from '../api/wrap'
 import { encryptPassword, now } from './util'
-import { defaultChars } from '/common/characters'
 import { resyncSubscription } from '../api/billing/stripe'
 import { getCachedTiers, getTier } from './subscriptions'
 import { store } from '.'
@@ -121,24 +120,15 @@ export async function createUser(newUser: NewUser, admin?: boolean) {
     oaiKey: '',
     defaultPresets: {},
     useLocalPipeline: false,
+    translation: {
+      type: 'googletranslate',
+      targetLanguage: 'id',
+      direction: 'translate_both',
+    },
     createdAt: new Date().toISOString(),
   }
 
   await db('user').insertOne(user)
-
-  for (const char of Object.values(defaultChars)) {
-    const nextChar: AppSchema.Character = {
-      _id: v4(),
-      kind: 'character',
-      userId: user._id,
-      favorite: false,
-      visualType: 'avatar',
-      updatedAt: now(),
-      createdAt: now(),
-      ...char,
-    }
-    await db('character').insertOne(nextChar)
-  }
 
   const profile: AppSchema.Profile = {
     _id: v4(),

@@ -86,6 +86,7 @@ export const upsertTempCharacter = handle(async ({ body, params, userId }) => {
       visualType: 'string?',
       sprite: 'any?',
       culture: 'string?',
+      visibility: 'any',
     },
     body
   )
@@ -121,6 +122,7 @@ export const upsertTempCharacter = handle(async ({ body, params, userId }) => {
     visualType: body.visualType,
     sprite: body.sprite,
     culture: body.culture,
+    visibility: body.visibility
   }
 
   tempCharacters[upserted._id] = upserted

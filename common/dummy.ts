@@ -24,6 +24,7 @@ export function toChar(
     updatedAt: '',
     userId: '',
     favorite: false,
+    visibility: 'private',
     ...overrides,
   }
 }

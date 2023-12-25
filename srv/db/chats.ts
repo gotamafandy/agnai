@@ -3,7 +3,7 @@ import { getCharacter } from './characters'
 import { db } from './client'
 import { AppSchema } from '/common/types'
 import { now } from './util'
-import { StatusError, errors } from '../api/wrap'
+import { errors, StatusError } from '../api/wrap'
 import { parseTemplate } from '/common/template-parser'
 import { config } from '../config'
 import { TranslationSettings } from '/common/types/translation-schema'
@@ -37,10 +37,12 @@ export async function getChat(id: string) {
   return { chat, characters }
 }
 
-export async function listByCharacter(userId: string, characterId: string) {
-  const docs = await db('chat').find({ characterId, userId }).sort({ updatedAt: -1 }).toArray()
+export async function getPublicCharacters() {
+  return await db('character').find({ visibility: 'public' }).toArray()
+}
 
-  return docs
+export async function listByCharacter(userId: string, characterId: string) {
+  return await db('chat').find({ characterId, userId }).sort({ updatedAt: -1 }).toArray()
 }
 
 export async function getMessageAndChat(msgId: string) {
@@ -103,6 +105,8 @@ export async function create(
 
   await db('chat').insertOne(doc)
 
+  console.log('CREATE CHAT 1')
+
   if (props.greeting) {
     const { parsed } = await parseTemplate(props.greeting, {
       chat: doc,
@@ -111,6 +115,9 @@ export async function create(
       sender: profile,
     })
 
+    console.log('TRANS')
+    console.log(translation)
+
     const translatedText = await translateMessage(
       id,
       log,
@@ -118,6 +125,9 @@ export async function create(
       parsed,
       translation
     )
+
+    console.log('CREATE CHAT 2')
+    console.log(translatedText)
 
     const msg: AppSchema.ChatMessage = {
       kind: 'chat-message',

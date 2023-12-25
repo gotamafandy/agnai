@@ -1,4 +1,4 @@
-import { Component, For, Match, Show, Switch, createSignal } from 'solid-js'
+import { Component, For, Match, Show, Switch, createSignal, createMemo } from 'solid-js'
 import { CardProps, ViewProps } from './types'
 import Divider from '/web/shared/Divider'
 import { A, useNavigate } from '@solidjs/router'
@@ -8,6 +8,7 @@ import { Copy, Download, Edit, Menu, MessageCircle, Star, Trash, VenetianMask } 
 import { DropMenu } from '/web/shared/DropMenu'
 import Button from '/web/shared/Button'
 import { useTransContext } from '@mbarzda/solid-i18next'
+import { userStore } from '../../../store'
 
 export const CharacterCardView: Component<ViewProps> = (props) => {
   return (
@@ -29,8 +30,8 @@ export const CharacterCardView: Component<ViewProps> = (props) => {
                 />
               )}
             </For>
-            <Show when={group.list.length < 4}>
-              <For each={new Array(4 - group.list.length)}>{() => <div></div>}</For>
+            <Show when={group.list.length < 6}>
+              <For each={new Array(6 - group.list.length)}>{() => <div></div>}</For>
             </Show>
           </div>
           <Show when={i() < props.groups.length - 1}>
@@ -47,20 +48,23 @@ const Character: Component<CardProps> = (props) => {
 
   const [opts, setOpts] = createSignal(false)
   const nav = useNavigate()
+  const user = userStore()
 
   let ref: any
+  
+  const isEditable = createMemo(() => props.char.userId === user.user?._id)
 
   return (
     <div
       ref={ref}
-      class="bg-800 flex flex-col items-center justify-between gap-1 rounded-lg border-[1px] border-[var(--bg-600)]"
+      class="bg-800 relative flex flex-col items-center justify-between gap-1 rounded-lg border-[1px] border-[var(--bg-600)]"
     >
       <div class="w-full">
         <Switch>
           <Match when={props.char.visualType === 'sprite' && props.char.sprite}>
             <A
               href={`/character/${props.char._id}/chats`}
-              class="block h-32 w-full justify-center overflow-hidden rounded-lg"
+              class="block h-60 w-full justify-center overflow-hidden rounded-lg"
             >
               <AvatarContainer container={ref} body={props.char.sprite} />
             </A>
@@ -68,7 +72,7 @@ const Character: Component<CardProps> = (props) => {
           <Match when={props.char.avatar}>
             <A
               href={`/character/${props.char._id}/chats`}
-              class="block h-32 w-full justify-center overflow-hidden rounded-lg rounded-b-none"
+              class="block h-60 w-full justify-center overflow-hidden rounded-lg rounded-b-none"
             >
               <img
                 src={getAssetUrl(props.char.avatar!)}
@@ -91,15 +95,14 @@ const Character: Component<CardProps> = (props) => {
         <div class="overflow-hidden text-ellipsis whitespace-nowrap px-1 text-center font-bold">
           {props.char.name}
         </div>
-        <div class="text-600 line-clamp-3 h-[3rem] text-ellipsis px-1 text-center text-xs font-normal">
+        <div class="text-600 mt-2 mb-2 line-clamp-3 h-[3rem] text-ellipsis px-1 text-center text-xs font-normal">
           {props.char.description}
         </div>
-        {/* hacky positioning shenanigans are necessary as opposed to using an
-            absolute positioning because if any of the DropMenu parent is
-            positioned, then DropMenu breaks because it relies on the nearest
-            positioned parent to be the sitewide container */}
+        <Button class="w-full mt-3" onClick={() => nav(`/chats/create/${props.char._id}`)}>
+          <MessageCircle /> Chat
+        </Button>
         <div
-          class="float-right mr-[3px] mt-[-195px] flex justify-end"
+          class="absolute top-0 right-0 mr-1 mt-1"
           onClick={() => setOpts(true)}
         >
           <div class="rounded-md border-[1px] border-[var(--bg-400)] bg-[var(--bg-700)] p-[2px]">
@@ -111,52 +114,42 @@ const Character: Component<CardProps> = (props) => {
             customPosition="right-[9px] top-[6px]"
           >
             <div class="flex flex-col gap-2 p-2">
-              <Button
-                onClick={() => props.toggleFavorite(!props.char.favorite)}
-                size="sm"
-                alignLeft
-              >
-                <Show when={props.char.favorite}>
-                  <Star class="text-900 fill-[var(--text-900)]" /> {t('unfavorite')}
-                </Show>
-                <Show when={!props.char.favorite}>
-                  <Star /> {t('favorite')}
-                </Show>
-              </Button>
               <Button onClick={() => nav(`/chats/create/${props.char._id}`)} alignLeft size="sm">
                 <MessageCircle /> {t('chat')}
               </Button>
-              <Button
-                alignLeft
-                size="sm"
-                onClick={() => {
-                  setOpts(false)
-                  props.download()
-                }}
-              >
-                <Download /> {t('download')}
-              </Button>
-              <Button alignLeft onClick={props.edit} size="sm">
-                <Edit /> {t('edit')}
-              </Button>
-              <Button
-                alignLeft
-                onClick={() => nav(`/character/create/${props.char._id}`)}
-                size="sm"
-              >
-                <Copy /> {t('duplicate')}
-              </Button>
-              <Button
-                alignLeft
-                size="sm"
-                schema="red"
-                onClick={() => {
-                  setOpts(false)
-                  props.delete()
-                }}
-              >
-                <Trash /> {t('delete')}
-              </Button>
+              <Show when={isEditable()}>
+                <Button
+                  alignLeft
+                  size="sm"
+                  onClick={() => {
+                    setOpts(false)
+                    props.download()
+                  }}
+                >
+                  <Download /> Download
+                </Button>
+                <Button alignLeft onClick={props.edit} size="sm">
+                  <Edit /> Edit
+                </Button>
+                <Button
+                  alignLeft
+                  onClick={() => nav(`/character/create/${props.char._id}`)}
+                  size="sm"
+                >
+                  <Copy /> Duplicate
+                </Button>
+                <Button
+                  alignLeft
+                  size="sm"
+                  schema="red"
+                  onClick={() => {
+                    setOpts(false)
+                    props.delete()
+                  }}
+                >
+                  <Trash /> Delete
+                </Button>
+              </Show>
             </div>
           </DropMenu>
         </div>

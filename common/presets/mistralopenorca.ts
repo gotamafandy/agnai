@@ -35,6 +35,7 @@ export const mistralOpenOrcaPresets = {
     memoryReverseWeight: false,
     antiBond: false,
     thirdPartyUrl: 'http://127.0.0.1:3000',
+    thirdPartyFormat: 'ooba',
     stopSequences: ['<|im_start|>user', '<|im_end|>', '<|im_start|>assistant'],
     promptOrderFormat: 'ChatML',
   },

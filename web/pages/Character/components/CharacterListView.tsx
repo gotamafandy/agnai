@@ -1,4 +1,4 @@
-import { Component, For, Show, createSignal } from 'solid-js'
+import { Component, For, Show, createSignal, createMemo } from 'solid-js'
 import Divider from '/web/shared/Divider'
 import { ViewProps } from './types'
 import { AppSchema } from '/common/types'
@@ -8,8 +8,10 @@ import { Copy, Download, Edit, MessageCircle, MoreHorizontal, Star, Trash } from
 import { DropMenu } from '/web/shared/DropMenu'
 import Button from '/web/shared/Button'
 import { useTransContext } from '@mbarzda/solid-i18next'
+import { userStore } from '../../../store'
 
 export const CharacterListView: Component<ViewProps> = (props) => {
+  
   return (
     <div class="flex w-full flex-col gap-2">
       <For each={props.groups}>
@@ -86,30 +88,13 @@ const CharacterListOptions: Component<{
 
   const [listOpts, setListOpts] = createSignal(false)
   const nav = useNavigate()
+  const user = userStore()
+
+  const isEditable = createMemo(() => props.char.userId === user.user?._id)
 
   return (
     <div>
       <div class="hidden flex-row items-center justify-center gap-2 sm:flex">
-        <Show when={props.char.favorite}>
-          <a
-            href="#"
-            onClick={() => props.toggleFavorite(false)}
-            role="button"
-            aria-label={t('remove_x_from_favorite_characters', { name: props.char.name })}
-          >
-            <Star class="icon-button fill-[var(--text-900)] text-[var(--text-900)]" />
-          </a>
-        </Show>
-        <Show when={!props.char.favorite}>
-          <a
-            href="#"
-            onClick={() => props.toggleFavorite(true)}
-            role="button"
-            aria-label={t('add_x_to_favorite_characters', { name: props.char.name })}
-          >
-            <Star class="icon-button" />
-          </a>
-        </Show>
         <A
           href={`/chats/create/${props.char._id}`}
           role="button"
@@ -117,6 +102,7 @@ const CharacterListOptions: Component<{
         >
           <MessageCircle class="icon-button" />
         </A>
+        <Show when={isEditable()}>
         <a
           href="#"
           onClick={props.download}
@@ -148,6 +134,7 @@ const CharacterListOptions: Component<{
         >
           <Trash class="icon-button" />
         </a>
+        </Show>
       </div>
       <div class="flex items-center sm:hidden" onClick={() => setListOpts(true)}>
         <MoreHorizontal class="icon-button" />

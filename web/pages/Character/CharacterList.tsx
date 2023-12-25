@@ -1,5 +1,5 @@
 import { Component, Match, Show, Switch, createEffect, createMemo, createSignal } from 'solid-js'
-import { NewCharacter, characterStore, chatStore, settingStore, userStore } from '../../store'
+import { NewCharacter, characterStore, chatStore, settingStore } from '../../store'
 import { tagStore } from '../../store'
 import PageHeader from '../../shared/PageHeader'
 import Select from '../../shared/Select'
@@ -53,12 +53,11 @@ const CharacterList: Component = () => {
 
   const tags = tagStore((s) => ({ filter: s.filter, hidden: s.hidden }))
   const cfg = settingStore()
-  const user = userStore()
   const state = chatStore((s) => {
     return {
-      allChars: s.allChars.list.filter((ch) => ch.userId === user.user?._id),
-      list: s.allChars.list.filter((ch) => ch.userId === user.user?._id && !ch.favorite),
-
+      allChars: s.allChars.list,
+      list: s.allChars.list,
+      favorites: [],
       loading: s.allLoading,
       loaded: s.loaded,
     }
@@ -80,7 +79,6 @@ const CharacterList: Component = () => {
     const dir = sortDirection()
     const sorted = state.list
       .slice()
-      .filter((ch) => ch.userId === user.user?._id || ch.visibility === 'public')
       .filter((ch) => ch.name.toLowerCase().includes(search().toLowerCase().trim()))
       .filter((ch) => tags.filter.length === 0 || ch.tags?.some((t) => tags.filter.includes(t)))
       .filter((ch) => !ch.tags || !ch.tags.some((t) => tags.hidden.includes(t)))
@@ -230,7 +228,7 @@ const CharacterList: Component = () => {
         filter={search()}
         sortField={sortField()}
         sortDirection={sortDirection()}
-        favorites={favorites()}
+        favorites={[]}
       />
       <div class="flex justify-center pb-5 pt-2">
         <ManualPaginate pager={pager} />

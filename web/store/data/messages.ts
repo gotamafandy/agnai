@@ -338,6 +338,10 @@ async function createActiveChatPrompt(
   }
 
   const props = await getGenerateProps(opts, active)
+
+  console.log('PROPS')
+  console.log(props)
+
   const entities = props.entities
 
   const resolvedScenario = resolveScenario(entities.chat, entities.char, entities.scenarios || [])
@@ -559,6 +563,7 @@ async function getGenerateProps(
       if (!isMulti) entities.autoReplyAs = entities.char._id
 
       if (!entities.autoReplyAs) throw new Error(`No character selected to reply with`)
+
       props.impersonate = entities.impersonating
       props.replyAs = getBot(entities.autoReplyAs)
       props.messages.push(
@@ -634,6 +639,7 @@ export async function getPromptEntities(): Promise<PromptEntities> {
 
   const entities = await getGuestEntities()
   if (!entities) throw new Error(`Could not collate data for prompting`)
+
   return {
     ...entities,
     messages: entities.messages.filter((msg) => msg.ooc !== true && msg.adapter !== 'image'),

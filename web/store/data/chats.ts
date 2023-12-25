@@ -62,12 +62,27 @@ export async function getChat(id: string) {
       members: AppSchema.Profile[]
       active: string[]
     }>(`/chat/${id}`)
+
     return res
   }
 
-  const allChars = await loadItem('characters')
+  console.log('SYABED')
+
+  let allChars = await getGuestCharacters()
+
+  console.log(allChars)
+
   const chat = await loadItem('chats').then((res) => res.find((ch) => ch._id === id))
-  const character = allChars.find((ch) => ch._id === chat?.characterId)
+
+  const res = await api.get(`/character/${chat!.characterId}`)
+
+  let character: AppSchema.Character | undefined
+
+  if (res.status == 200) {
+    character = res.result
+  } else {
+    character = allChars.find((ch) => ch._id === chat?.characterId)
+  }
 
   const profile = await loadItem('profile')
   const messages = await localApi.getMessages(id)
@@ -101,7 +116,16 @@ export async function restartChat(chatId: string) {
   const chat = chats.find((ch) => ch._id === chatId)
   if (!chat) return localApi.error('Chat not found')
 
-  const char = chars.find((ch) => ch._id === chat.characterId)
+  const res = await api.get(`/character/${chat.characterId}`)
+
+  let char: AppSchema.Character | undefined
+
+  if (res.status == 200) {
+    char = res.result
+  } else {
+    char = chars.find((ch) => ch._id === chat.characterId)
+  }
+
   const greeting = char?.greeting
 
   if (char && greeting) {
@@ -167,18 +191,20 @@ export async function editChat(
 export async function createChat(characterId: string, props: NewChat) {
   const impersonating = getStore('character').getState().impersonating
   if (isLoggedIn()) {
-    const res = await api.post<AppSchema.Chat>('/chat', {
+    return await api.post<AppSchema.Chat>('/chat', {
       characterId,
       ...props,
       impersonating: impersonating?._id,
     })
-    return res
   }
 
-  const chars = await loadItem('characters')
   const chats = await loadItem('chats')
-  const char = chars.find((ch) => ch._id === characterId)
-  if (!char) return localApi.error(`Character not found`)
+
+  const char = await getGuestCharacterDetail(characterId)
+
+  if (!char) {
+    return localApi.error(`Character not found`)
+  }
 
   const { chat, msg } = createNewChat(char, props)
 
@@ -213,9 +239,8 @@ export async function importChat(characterId: string, props: ImportChat) {
     return res
   }
 
-  const char = await localApi
-    .loadItem('characters')
-    .then((res) => res.find((char) => char._id === characterId))
+  const char = await getGuestCharacterDetail(characterId)
+
   if (!char) {
     return localApi.error(`Character not found`)
   }
@@ -263,23 +288,11 @@ export async function deleteChat(chatId: string) {
 
 export async function getAllChats() {
   if (isLoggedIn()) {
-    const res = await api.get<{ chats: AllChat[]; characters: AppSchema.Character[] }>('/chat')
-
-    // Apply public characters from anon
-    const characters = await loadItem('characters')
-
-    const publicCharacters = characters.filter((e) => e.visibility === 'public')
-
-    console.log(characters)
-
-    if (res.status == 200) {
-      res.result?.characters?.concat(publicCharacters)
-    }
-
-    return res
+    return await api.get<{ chats: AllChat[]; characters: AppSchema.Character[] }>('/chat')
   }
 
-  const characters = await loadItem('characters')
+  const characters = await getGuestCharacters()
+
   const chats = (await loadItem('chats')) as AllChat[]
 
   if (!chats?.length) {
@@ -312,9 +325,8 @@ export async function getBotChats(characterId: string) {
     return res
   }
 
-  const character = await loadItem('characters').then((res) =>
-    res.find((ch) => ch._id === characterId)
-  )
+  const character = await getGuestCharacterDetail(characterId)
+
   if (!character) return localApi.error('Character not found')
 
   const chats = await loadItem('chats').then((res) =>
@@ -382,9 +394,8 @@ export async function addCharacter(chatId: string, charId: string) {
 
   const chats = await localApi.loadItem('chats')
   const chat = chats.find((ch) => ch._id === chatId)
-  const char = await localApi
-    .loadItem('characters')
-    .then((res) => res.find((ch) => ch._id === charId))
+
+  const char = await getGuestCharacterDetail(charId)
 
   if (!chat || !char) {
     return localApi.error(`Chat or Character not found`)
@@ -436,9 +447,8 @@ export async function removeCharacter(chatId: string, charId: string) {
 
   const chats = await localApi.loadItem('chats')
   const chat = chats.find((ch) => ch._id === chatId)
-  const char = await localApi
-    .loadItem('characters')
-    .then((res) => res.find((ch) => ch._id === charId))
+
+  const char = await getGuestCharacterDetail(charId)
 
   if (!chat || !char) {
     return localApi.error(`Chat or Character not found`)
@@ -451,4 +461,37 @@ export async function removeCharacter(chatId: string, charId: string) {
 
   await localApi.saveChats(replace(chatId, chats, next))
   return localApi.result({ success: true })
+}
+
+async function getGuestCharacters() {
+  const res = await api.get('/chat/public-characters')
+
+  let characters: AppSchema.Character[]
+
+  const localCharacters = await loadItem('characters')
+
+  if (res.status == 200) {
+    characters = res.result
+    characters.push(...localCharacters)
+  } else {
+    characters = localCharacters
+  }
+
+  return characters
+}
+
+async function getGuestCharacterDetail(characterId: string) {
+  const res = await api.get(`/character/${characterId}`)
+
+  let char: AppSchema.Character | undefined
+
+  if (res.status == 200) {
+    char = res.result
+  } else {
+    const chars = await loadItem('characters')
+
+    char = chars.find((char) => char._id === characterId)
+  }
+
+  return char
 }
