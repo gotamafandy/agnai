@@ -161,6 +161,7 @@ const ChatDetail: Component = () => {
       return msg
     })
 
+
     if (!chats.chat || !chats.char) return []
     const doShowHiddenEvents = showHiddenEvents()
     return insertImageMessages(messages, msgs.images[params.id]).filter((msg) => {
@@ -186,6 +187,7 @@ const ChatDetail: Component = () => {
     setEvented(true)
 
     const messages = msgs.msgs
+
     const isNonEvent = !msgs.msgs[0]?.event
     if (isNonEvent && messages.length <= 1) {
       eventStore.onGreeting(chats.chat)

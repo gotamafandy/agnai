@@ -8,7 +8,7 @@ import { parseTemplate } from '/common/template-parser'
 import { config } from '../config'
 import { TranslationSettings } from '/common/types/translation-schema'
 import { AppLog } from '/srv/logger'
-import { translateMessage, translateText } from '/srv/translate'
+import { translateMessage } from '/srv/translate'
 
 export async function getChatOnly(id: string) {
   const chat = await db('chat').findOne({ _id: id })

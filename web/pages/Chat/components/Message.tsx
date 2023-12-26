@@ -141,7 +141,7 @@ const Message: Component<MessageProps> = (props) => {
   const startEdit = () => {
     setEdit(true)
     if (editRef) {
-      editRef.innerText = props.msg.msg
+      editRef.innerText = props.msg.translatedMsg
     }
     editRef?.focus()
   }

@@ -242,7 +242,10 @@ export const msgStore = createStore<MsgState>(
       if (res.error) {
         toastStore.error(`Failed to update message: ${res.error}`)
       }
+
       if (res.result) {
+        msg = res.result.msgs.translatedMsg
+
         yield { msgs: msgs.map((m) => (m._id === msgId ? { ...m, msg, voiceUrl: undefined } : m)) }
         onSuccess?.()
       }
@@ -898,6 +901,7 @@ const updateMsgSub = (body: any) => {
   const nextMsgs = replace(body.messageId, msgs, {
     imagePrompt: body.imagePrompt || prev?.imagePrompt,
     msg: body.message || prev?.msg,
+    translatedMsg: body.translatedMessage,
     retries: body.retries || prev?.retries,
     actions: body.actions || prev?.actions,
     voiceUrl: undefined,
@@ -912,6 +916,7 @@ subscribe(
   {
     messageId: 'string',
     message: 'string?',
+    translatedMessage: 'string?',
     imagePrompt: 'string?',
     actions: 'any?',
     extras: ['string?'],

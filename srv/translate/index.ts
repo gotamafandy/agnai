@@ -31,7 +31,9 @@ export async function translateMessage(
   text?: string,
   translation?: TranslationSettings
 ) {
-  if (text == null || translation == null) throw errors.BadRequest
+  if (text == null) throw errors.BadRequest
+
+  if (translation == null) return text
 
   if (translation.direction !== 'none') {
     const translateService = translation.type

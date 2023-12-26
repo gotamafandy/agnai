@@ -101,8 +101,7 @@ export async function importMessages(userId: string, messages: NewMessage[]) {
 }
 
 export async function getMessage(messageId: string) {
-  const msg = await db('chat-message').findOne({ _id: messageId, kind: 'chat-message' })
-  return msg
+  return await db('chat-message').findOne({ _id: messageId, kind: 'chat-message' })
 }
 
 export async function deleteMessages(messageIds: string[]) {
@@ -122,8 +121,7 @@ export async function editMessage(
 
   await db('chat-message').updateOne({ _id: id }, { $set: edit })
 
-  const msg = await getMessage(id)
-  return msg
+  return await getMessage(id)
 }
 
 export async function getMessages(chatId: string, before?: string) {
