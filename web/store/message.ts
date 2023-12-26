@@ -244,9 +244,15 @@ export const msgStore = createStore<MsgState>(
       }
 
       if (res.result) {
-        msg = res.result.msgs.translatedMsg
+        const translatedMsg = res.result.translatedMsg
 
-        yield { msgs: msgs.map((m) => (m._id === msgId ? { ...m, msg, voiceUrl: undefined } : m)) }
+        msg = res.result.msg
+
+        yield {
+          msgs: msgs.map((m) =>
+            m._id === msgId ? { ...m, msg, translatedMsg, voiceUrl: undefined } : m
+          ),
+        }
         onSuccess?.()
       }
     },

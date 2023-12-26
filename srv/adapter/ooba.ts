@@ -64,7 +64,6 @@ export async function* getTextgenCompletion(
   payload: any,
   headers: any
 ): AsyncGenerator<any> {
-
   const resp = await needle('post', url, JSON.stringify(payload), {
     json: true,
     headers: Object.assign(headers, { Accept: 'application/json' }),
@@ -87,10 +86,7 @@ export async function* getTextgenCompletion(
     return
   }
 
-  console.log(resp.body)
-
   try {
-
     const text = resp.body.choices?.[0]?.text
     if (!text) {
       yield {
@@ -107,11 +103,11 @@ export async function* getTextgenCompletion(
 
 function extractNameAndMessage(msg: string) {
   const messageParts = msg.split(':')
-  
+
   // Extracting the name and message
-  const name = messageParts[0].trim();
+  const name = messageParts[0].trim()
   const message = messageParts.slice(1).join(':').trim()
-  
+
   return [name, message]
 }
 
@@ -119,10 +115,15 @@ function getChatMLPromptInfo(opts: AdapterProps, promptInfo: AppSchema.PromptInf
   const { gen, char, parts } = opts
 
   if (parts.sampleChat != null) {
-    promptInfo['examples'] = `<|im_start|>system\nHow ${char.name} speaks:\n${parts.sampleChat.join('\n')}<|im_end|>\n`
+    promptInfo['examples'] = `<|im_start|>system\nHow ${char.name} speaks:\n${parts.sampleChat.join(
+      '\n'
+    )}<|im_end|>\n`
   }
   if (gen.promptOrderFormat == 'ChatML') {
-    promptInfo['story'] = `<|im_start|>system\n${parts.persona.replace('{{char}}', char.name)}<|im_end|>\n`   
+    promptInfo['story'] = `<|im_start|>system\n${parts.persona.replace(
+      '{{char}}',
+      char.name
+    )}<|im_end|>\n`
   }
 }
 
@@ -133,7 +134,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
   const lastMessage = lines[lines.length - 1]
 
   const [name, message] = extractNameAndMessage(lastMessage)
-   
+
   const promptInfo: AppSchema.PromptInfo = {
     char_description: parts.persona.replace('{{char}}', char.name),
     scenario: parts.scenario?.replace('{{char}}', char.name).replace('{{user}}', sender.handle),
@@ -147,8 +148,8 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     user_message: {
       name: name,
       is_user: name === sender.handle,
-      mes: message
-    }
+      mes: message,
+    },
   }
 
   if (gen.promptOrderFormat == 'ChatML') {
@@ -336,7 +337,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     previous: opts.previous,
     legacy_api: false
   }
-  
+
   return body
 }
 
