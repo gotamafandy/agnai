@@ -4,6 +4,8 @@ import Tabs from '../../../shared/Tabs'
 import Divider from '../../../shared/Divider'
 import Select from '/web/shared/Select'
 import GoogleTranslateSettings from './GoogleTranslateSettings'
+import { useTransContext } from '@mbarzda/solid-i18next'
+import { TFunction } from 'i18next'
 
 const translateServiceTabs = {
   googletranslate: 'Google Translate',
@@ -11,11 +13,11 @@ const translateServiceTabs = {
 
 type Tab = keyof typeof translateServiceTabs
 
-const translationDirections = [
-  { label: 'None', value: 'none' },
-  { label: 'Translate both', value: 'translate_both' },
-  { label: 'Translate inputs', value: 'translate_inputs' },
-  { label: 'Translate outputs', value: 'translate_outputs' },
+const translationDirections = (t: TFunction) => [
+  { label: t('none'), value: 'none' },
+  { label: t('translate_both'), value: 'translate_both' },
+  { label: t('translate_inputs'), value: 'translate_inputs' },
+  { label: t('translate_outputs'), value: 'translate_outputs' },
 ]
 
 const translationTypes = [{ label: 'Google', value: 'googletranslate' }]
@@ -128,6 +130,8 @@ const languageCodes = [
 ]
 
 export const TranslationSettings: Component = () => {
+  const [t] = useTransContext()
+
   const state = userStore()
 
   const [, setDirection] = createSignal(state.user?.translation?.direction || 'none')
@@ -142,18 +146,18 @@ export const TranslationSettings: Component = () => {
   return (
     <>
       <div class="flex flex-col gap-4">
-        <p class="text-lg font-bold">Chat translation</p>
+        <p class="text-lg font-bold">{t('chat_translation')}</p>
 
-        <p class="text-lg font-bold">Auto-mode</p>
+        <p class="text-lg font-bold">{t('auto_mode')}</p>
 
         <Select
           fieldName="translationDirection"
-          items={translationDirections}
+          items={translationDirections(t)}
           value={state.user?.translation?.direction || 'none'}
           onChange={(value) => setDirection(value.value as any)}
         />
 
-        <p class="text-lg font-bold">Provider</p>
+        <p class="text-lg font-bold">{t('provider')}</p>
 
         <Select
           fieldName="translationType"
@@ -162,7 +166,7 @@ export const TranslationSettings: Component = () => {
           onChange={(value) => setType(value.value as any)}
         />
 
-        <p class="text-lg font-bold">Target language</p>
+        <p class="text-lg font-bold">{t('target_language')}</p>
 
         <Select
           fieldName="translationLanguage"
@@ -173,7 +177,7 @@ export const TranslationSettings: Component = () => {
 
         <Divider />
 
-        <p class="text-lg font-bold">Translation Services</p>
+        <p class="text-lg font-bold">{t('translation_services')}</p>
 
         <div class="my-2">
           <Tabs tabs={tabs.map((t) => translateServiceTabs[t])} selected={tab} select={setTab} />

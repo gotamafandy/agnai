@@ -1207,4 +1207,13 @@
   "sagas_preview": "Sagas Preview",
   "term_of_service": "Term of Service"
   "attributes_key_value": "Attributes (Key: value)"
+  "chat_translation": "Chat translation",
+  "auto_mode": "Auto mode",
+  "provider": "Provider",
+  "target_language": "Target language",
+  "translation_services": "Translation Services",
+  "translate_both": "Translate Both",
+  "translate_inputs": "Translate Inputs",
+  "translate_outputs": "Translate Outputs",
+  "translate": "Translate"
 }

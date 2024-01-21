@@ -30,7 +30,8 @@ const settingTabs: (t: TFunction) => Record<Tab, string> = (t: TFunction) => ({
   image: t('image_settings'),
   voice: t('voice_settings'),
   guest: t('guest_data'),
-  subscription: t('Subscription'),
+  subscription: t('subscription'),
+  translate: t('translate')
 })
 
 

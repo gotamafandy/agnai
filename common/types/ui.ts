@@ -113,7 +113,7 @@ export const defaultUIsettings: UISettings = {
   avatarSize: 'md',
   avatarCorners: 'circle',
   font: 'default',
-  language: 'en-US',
+  language: 'id-ID',
   msgOpacity: 0.8,
   mobileSendOnEnter: false,
 

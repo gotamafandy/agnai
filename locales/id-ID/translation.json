@@ -1208,4 +1208,13 @@
   "sagas_preview": "Sagas Preview",
   "term_of_service": "Syarat dan Ketentuan"
   "attributes_key_value": "Atribut (Key: value)"
+  "chat_translation": "Terjemahan Obrolan",
+  "auto_mode": "Mode Otomatis",
+  "provider": "Provider",
+  "target_language": "Bahasa Tujuan",
+  "translation_services": "Layanan Penterjemah",
+  "translate_both": "Terjemahkan Keduanya",
+  "translate_inputs": "Terjemahkan Input",
+  "translate_outputs": "Terjemahkan Output",
+  "translate": "Terjemahan"
 }
