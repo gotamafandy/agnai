@@ -468,7 +468,7 @@
   "this_is_the_beginning_of_the_group_conversation": "This is the beginning of the group conversation.",
   "this_is_the_beginning_of_your_conversation_with_x": "This is the beginning of your conversation with {{participant}}.",
   "send_a_message_ooc": "Send a message... (OOC)",
-  "send_a_message_to_x": "`Send a message to {{name}}...",
+  "send_a_message_to_x": "Send a message to {{name}}...",
   "send_a_message": "Send a message...",
   "confirm_or_cancel_swiping_before_sending": "Confirm or cancel swiping before sending",
   "could_not_play_voice_no_character_message_found": "Could not play voice: No character message found",

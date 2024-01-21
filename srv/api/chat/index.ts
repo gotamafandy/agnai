@@ -18,7 +18,6 @@ import { deleteChat, deleteMessages } from './remove'
 import { textToSpeech } from './texttospeech'
 import { addCharacter, upsertTempCharacter, removeCharacter } from './characters'
 import { generateActions, guidance, inference, inferenceApi } from './inference'
-import { generateActions, guidance, inference, inferenceApi, rerunGuidance } from './inference'
 import { translate } from './translate'
 
 const router = Router()

@@ -71,6 +71,7 @@ export function jsonToCharacter(t: TFunction, json: any): NewCharacter {
           text: [json.char_persona],
         },
       },
+      visibility: json.visibility,
       sampleChat: json.example_dialogue,
       scenario: json.world_scenario,
       originalAvatar: undefined,
@@ -87,6 +88,7 @@ export function jsonToCharacter(t: TFunction, json: any): NewCharacter {
           text: [[json.description, json.personality].filter((text) => !!text).join('\n')],
         },
       },
+      visibility: json.visibility,
       sampleChat: json.mes_example,
       scenario: json.scenario,
       originalAvatar: undefined,
@@ -116,6 +118,7 @@ export function jsonToCharacter(t: TFunction, json: any): NewCharacter {
           },
         }
       : json.data.extensions.agnai.persona,
+    visibility: json.data.visibility,
     sampleChat: json.data.mes_example,
     scenario: json.data.scenario,
     originalAvatar: undefined,

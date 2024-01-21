@@ -469,7 +469,7 @@
   "this_is_the_beginning_of_the_group_conversation": "Ini adalah awal dari percakapan berkelompok.",
   "this_is_the_beginning_of_your_conversation_with_x": "Ini adalah awal percakapan Anda dengan {{participant}}.",
   "send_a_message_ooc": "Kirim pesan... (OOC)",
-  "send_a_message_to_x": "`Kirim pesan ke {{name}}...",
+  "send_a_message_to_x": "Kirim pesan ke {{name}}...",
   "send_a_message": "Kirim pesan...",
   "confirm_or_cancel_swiping_before_sending": "Konfirmasikan atau batalkan \"swiping\" sebelum mengirim",
   "could_not_play_voice_no_character_message_found": "Tidak dapat memutar suara: Pesan karakter tidak ditemukan",

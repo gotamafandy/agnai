@@ -8,10 +8,7 @@ import { AppSchema } from '/common/types'
 import { v4 } from 'uuid'
 import { Response } from 'express'
 import { publishMany } from '../ws/handle'
-import { runGuidance } from '/common/guidance/guidance-parser'
-import { cyoaTemplate } from '/common/mode-templates'
-import { fillPromptWithLines } from '/common/prompt'
-import { getTokenCounter } from '/srv/tokenize'
+
 import { translateMessage } from '/srv/translate'
 
 type GenRequest = UnwrapBody<typeof genValidator>
