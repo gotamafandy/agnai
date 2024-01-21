@@ -8,7 +8,6 @@ import { charsApi } from './data/chars'
 import { imageApi } from './data/image'
 import { getAssetUrl, storage, toMap } from '../shared/util'
 import { toCharacterMap } from '../pages/Character/util'
-import { getUserId } from './api'
 
 const IMPERSONATE_KEY = 'agnai-impersonate'
 
@@ -124,7 +123,6 @@ export const characterStore = createStore<CharacterState>(
   events.on(EVENTS.allChars, async (chars: AppSchema.Character[]) => {
     const state = get()
     const id = await storage.getItem(IMPERSONATE_KEY)
-    const userId = getUserId()
 
     const impersonating =
       !state.impersonating && id ? chars.find((ch) => ch._id === id) : state.impersonating
@@ -132,7 +130,7 @@ export const characterStore = createStore<CharacterState>(
     set({
       characters: {
         map: toMap(chars),
-        list: chars.filter((ch) => ch.userId === userId),
+        list: chars.filter((ch) => ch.visibility === 'public'),
         loaded: Date.now(),
       },
       impersonating,

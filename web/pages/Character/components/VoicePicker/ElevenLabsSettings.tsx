@@ -4,8 +4,6 @@ import RangeInput from '../../../../shared/RangeInput'
 import Select, { Option } from '../../../../shared/Select'
 import { voiceStore } from '/web/store/voice'
 import { useTransContext } from '@mbarzda/solid-i18next'
-import { TFunction } from 'i18next'
-
 
 export const defaultElevenLabsSettings: VoiceSettingForm<'elevenlabs'> = {
   stability: 0.75,
@@ -52,7 +50,7 @@ export const ElevenLabsSettings: Component<{
       <Select
         fieldName="elevenLabsModel"
         label={t('eleven_labs_model')}
-        items={modelOptions(t)}
+        items={modelOptions()}
         value={props.settings.model}
         onChange={(item) => update({ model: item.value as ElevenLabsModel })}
       />

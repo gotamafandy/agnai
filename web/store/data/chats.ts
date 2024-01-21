@@ -66,11 +66,7 @@ export async function getChat(id: string) {
     return res
   }
 
-  console.log('SYABED')
-
   let allChars = await getGuestCharacters()
-
-  console.log(allChars)
 
   const chat = await loadItem('chats').then((res) => res.find((ch) => ch._id === id))
 
@@ -295,6 +291,7 @@ export async function getAllChats() {
 
   const chats = (await loadItem('chats')) as AllChat[]
 
+  /*
   if (!chats?.length) {
     const [char] = characters
     const { chat, msg } = createNewChat(char, {
@@ -313,6 +310,7 @@ export async function getAllChats() {
 
     chats.push(chat)
   }
+  */
 
   return localApi.result({ chats, characters })
 }
@@ -358,7 +356,7 @@ export async function editChatGenPreset(chatId: string, preset: string) {
 export function createNewChat(char: AppSchema.Character, props: NewChat) {
   const chat: AppSchema.Chat = {
     _id: v4(),
-    characterId: char?._id,
+    characterId: char._id,
     ...props,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

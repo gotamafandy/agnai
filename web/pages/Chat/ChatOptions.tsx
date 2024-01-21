@@ -96,7 +96,7 @@ const ChatOptions: Component<{
 
   return (
     <>
-      <Show when={chats.chat?.mode}>
+      <Show when={chats.chat?.mode && user.user?.admin}>
         <Card>{t('mode_x', { mode: chats.chat?.mode })}</Card>
       </Show>
       <div class="flex w-72 flex-col gap-2 p-2">
@@ -114,34 +114,38 @@ const ChatOptions: Component<{
           </Option>
         </Show>
 
-        <Option onClick={toggleEditing} hide={!isOwner()}>
-          <div class="flex w-full items-center justify-between">
-            <div>{t('enable_chat_editing')}</div>
-            <Toggle
-              class="flex items-center"
-              fieldName="editChat"
-              value={chats.opts.editing}
-              onChange={toggleEditing}
-            />
-          </div>
-        </Option>
-
-        <Option onClick={() => props.togglePane('character')} hide={!isOwner()}>
-          <User /> {t('character')}
-        </Option>
-
+        <Show when={user.user?.admin}>
+          <Option onClick={toggleEditing} hide={!isOwner()}>
+            <div class="flex w-full items-center justify-between">
+              <div>{t('enable_chat_editing')}</div>
+              <Toggle
+                class="flex items-center"
+                fieldName="editChat"
+                value={chats.opts.editing}
+                onChange={toggleEditing}
+              />
+            </div>
+          </Option>
+        </Show>
+        <Show when={user.user?.admin}>
+          <Option onClick={() => props.togglePane('character')} hide={!isOwner()}>
+            <User /> {t('character')}
+          </Option>
+        </Show>
         <Option onClick={() => props.togglePane('participants')} hide={!isOwner()}>
           <Users /> {t('participants')}
         </Option>
 
-        <Row>
-          <Item onClick={() => props.togglePane('chat-settings')} hide={!isOwner()}>
-            <Settings /> {t('edit_chat')}
-          </Item>
-          <Item onClick={() => props.togglePane('preset')} hide={!isOwner()}>
-            <Sliders /> {t('preset')}
-          </Item>
-        </Row>
+        <Show when={user.user?.admin}>
+          <Row>
+            <Item onClick={() => props.togglePane('chat-settings')} hide={!isOwner()}>
+              <Settings /> {t('edit_chat')}
+            </Item>
+            <Item onClick={() => props.togglePane('preset')} hide={!isOwner()}>
+              <Sliders /> {t('preset')}
+            </Item>
+          </Row>
+        </Show>
         <Row>
           <Item onClick={screenshotChat}>
             <Camera />
@@ -150,27 +154,33 @@ const ChatOptions: Component<{
               <em>{t('loading_please_wait')}</em>
             </Show>
           </Item>
-          <Item onClick={() => props.togglePane('memory')} hide={!isOwner()}>
-            <Book /> {t('memory')}
-          </Item>
+          <Show when={user.user?.admin}>
+            <Item onClick={() => props.togglePane('memory')} hide={!isOwner()}>
+              <Book /> {t('memory')}
+            </Item>
+          </Show>
         </Row>
 
         <Row>
-          <Item
-            schema={cfg.anonymize ? 'primary' : 'grey'}
-            onClick={settingStore.toggleAnonymize}
-          >
-            <VenetianMask /> {t('anonymize')}
-          </Item>
+          <Show when={user.user?.admin}>
+            <Item
+              schema={cfg.anonymize ? 'primary' : 'grey'}
+              onClick={settingStore.toggleAnonymize}
+            >
+              <VenetianMask /> {t('anonymize')}
+            </Item>
+          </Show>
           <Item onClick={() => props.togglePane('ui')}>
             <Palette /> {t('ui')}
           </Item>
         </Row>
 
         <Row>
-          <Item onClick={() => props.setModal('export')}>
-            <Download /> {t('export')}
-          </Item>
+          <Show when={user.user?.admin}>
+            <Item onClick={() => props.setModal('export')}>
+              <Download /> {t('export')}
+            </Item>
+          </Show>
           <Item onClick={() => props.setModal('delete')} hide={!isOwner()}>
             <Trash /> {t('delete')}
           </Item>
@@ -183,9 +193,11 @@ const ChatOptions: Component<{
             </Item>
           </Row>
         </Show>
-        <div class="flex justify-center">
-          <em class="text-sm">{props.adapterLabel}</em>
-        </div>
+        <Show when={user.user?.admin}>
+          <div class="flex justify-center">
+            <em class="text-sm">{props.adapterLabel}</em>
+          </div>
+        </Show>
       </div>
       <ConfirmModal
         message={

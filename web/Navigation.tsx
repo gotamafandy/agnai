@@ -251,10 +251,11 @@ const UserNavigation: Component = () => {
       </Show>
 
       <div class="flex flex-wrap justify-center gap-[2px] text-sm">
-        <Item href="/faq" ariaLabel="Open FAQ page">
-          <HelpCircle aria-hidden="true" />
-        </Item>
-
+        <Show when={user.user?.admin}>
+          <Item href="/faq" ariaLabel={t('open_faq_page')}>
+            <HelpCircle aria-hidden="true" />
+          </Item>
+        </Show>
         <Show when={menu.config.patreon}>
           <ExternalLink href="https://patreon.com/Agnaistic" newtab ariaLabel="Patreon">
             <HeartHandshake aria-hidden="true" />
@@ -346,27 +347,31 @@ const GuestNavigation: Component = () => {
 
         <ChatLink />
 
-        <Library />
+        <Show when={user.user?.admin}>
+          <Library />
+        </Show>
 
-        <MultiItem>
-          <Item
-            href="/presets"
-            ariaLabel={t('presets')}
-            onClick={() => soundEmitter.emit('menu-item-clicked', 'presets')}
-          >
-            <Sliders /> {t('presets')}
-          </Item>
-          <EndItem>
-            <A
-              class="icon-button"
-              href="/presets/new"
-              role="button"
-              aria-label={t('add_a_new_preset')}
+        <Show when={user.user?.admin}>
+          <MultiItem>
+            <Item
+              href="/presets"
+              ariaLabel={t('presets')}
+              onClick={() => soundEmitter.emit('menu-item-clicked', 'presets')}
             >
-              <Plus aria-hidden="true" />
-            </A>
-          </EndItem>
-        </MultiItem>
+              <Sliders /> {t('presets')}
+            </Item>
+            <EndItem>
+              <A
+                class="icon-button"
+                href="/presets/new"
+                role="button"
+                aria-label={t('add_a_new_preset')}
+              >
+                <Plus aria-hidden="true" />
+              </A>
+            </EndItem>
+          </MultiItem>
+        </Show>
 
         <Show when={menu.flags.sounds}>
           <Sounds />
@@ -383,10 +388,11 @@ const GuestNavigation: Component = () => {
             <HeartHandshake aria-hidden="true" />
           </ExternalLink>
         </Show>
-
-        <Item href="/settings" ariaLabel={t('open_settings_page')}>
-          <Settings aria-hidden="true" />
-        </Item>
+        <Show when={user.user?.admin}>
+          <Item href="/settings" ariaLabel={t('open_settings_page')}>
+            <Settings aria-hidden="true" />
+          </Item>
+        </Show>
 
         <Item
           ariaLabel={t('toggle_between_light_and_dark_mode')}
@@ -570,6 +576,8 @@ const Sounds: Component<{}> = (props) => {
 const CharacterLink: Component = () => {
   const [t] = useTransContext()
 
+  const user = userStore()
+
   return (
     <MultiItem>
       <Item
@@ -580,11 +588,13 @@ const CharacterLink: Component = () => {
         <WizardIcon aria-hidden="true" />
         <span aria-hidden="true">{t('characters')}</span>
       </Item>
-      <EndItem>
-        <A class="icon-button" href="/editor" role="button" aria-label={t('add_a_new_character')}>
-          <Plus aria-hidden="true" />
-        </A>
-      </EndItem>
+      <Show when={user.user?.admin}>
+        <EndItem>
+          <A class="icon-button" href="/editor" role="button" aria-label={t('add_a_new_character')}>
+            <Plus aria-hidden="true" />
+          </A>
+        </EndItem>
+      </Show>
     </MultiItem>
   )
 }
@@ -656,20 +666,22 @@ const UserProfile: Component = () => {
           </Switch>
           <span aria-hidden="true">{chars.impersonating?.name || user.profile?.handle}</span>
         </Item>
-        <div class="flex items-center">
-          <a
-            href="#"
-            role="button"
-            aria-label={t('open_impersonation_menu')}
-            class="icon-button"
-            onClick={() => {
-              settingStore.toggleImpersonate(true)
-              if (menu.showMenu) settingStore.closeMenu()
-            }}
-          >
-            <VenetianMask aria-hidden="true" />
-          </a>
-        </div>
+        <Show when={user.user?.admin}>
+          <div class="flex items-center">
+            <a
+              href="#"
+              role="button"
+              aria-label={t('open_impersonation_menu')}
+              class="icon-button"
+              onClick={() => {
+                settingStore.toggleImpersonate(true)
+                if (menu.showMenu) settingStore.closeMenu()
+              }}
+            >
+              <VenetianMask aria-hidden="true" />
+            </a>
+          </div>
+        </Show>
       </div>
     </>
   )

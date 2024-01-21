@@ -1,6 +1,6 @@
 import { A, useNavigate, useParams } from '@solidjs/router'
 import { Component, createEffect, createMemo, createSignal, For, onMount, Show } from 'solid-js'
-import { AllChat, characterStore, chatStore } from '../../store'
+import { AllChat, characterStore, chatStore, userStore } from '../../store'
 import PageHeader from '../../shared/PageHeader'
 import { Edit, Import, Plus, Trash, SortAsc, SortDesc } from 'lucide-solid'
 import ImportChatModal from './ImportChat'
@@ -38,6 +38,7 @@ const sortOptions = (t: TFunction) => [
 const CharacterChats: Component = () => {
   const [t] = useTransContext()
 
+  const user = userStore()
   const params = useParams()
   const cache = getListCache()
   const chars = characterStore((s) => ({
@@ -126,13 +127,15 @@ const CharacterChats: Component = () => {
 
   const Options = () => (
     <>
-      <button
-        class={`btn-primary w-full items-center justify-start py-2 sm:w-fit sm:justify-center`}
-        onClick={() => setImport(true)}
-      >
-        <Import /> <span class="hidden sm:inline">{t('import')}</span>
-      </button>
-      <Show when={!!params.id}>
+      <Show when={user.user?.admin}>
+        <button
+          class={`btn-primary w-full items-center justify-start py-2 sm:w-fit sm:justify-center`}
+          onClick={() => setImport(true)}
+        >
+          <Import /> <span class="hidden sm:inline">{t('import')}</span>
+        </button>
+      </Show>
+      <Show when={!!params.id && user.user?.admin}>
         <button
           class={`btn-primary w-full items-center justify-start py-2 sm:w-fit sm:justify-center`}
           onClick={() => nav(`/character/${params.id}/edit`)}

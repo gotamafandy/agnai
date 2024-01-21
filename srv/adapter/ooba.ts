@@ -115,7 +115,9 @@ function getChatMLPromptInfo(opts: AdapterProps, promptInfo: AppSchema.PromptInf
   const { gen, char, parts } = opts
 
   if (parts.sampleChat != null) {
-    promptInfo['examples'] = `This is how ${char.name} should talk: ${parts.sampleChat.join('\n').replace(new RegExp('\r', 'g'), '')}`
+    promptInfo['examples'] = `This is how ${char.name} should talk: ${parts.sampleChat
+      .join('\n')
+      .replace(new RegExp('\r', 'g'), '')}`
   }
   if (gen.promptOrderFormat == 'ChatML') {
     promptInfo['story'] = `<|im_start|>system\n${parts.persona.replace(
@@ -142,12 +144,19 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     cid2: `agnai-${char.name.toLowerCase().replace(/\s+/g, '-')}`,
     name1: sender.handle,
     source: 'agnai',
-    authorNotes: char.insert,
     user_message: {
       name: name,
       is_user: name === sender.handle,
       mes: message,
     },
+  }
+
+  if (char.insert != null) {
+    promptInfo['author_note'] = {
+      value: char.insert.prompt.replace('{{char}}', char.name),
+      position: 1,
+      depth: char.insert.depth,
+    }
   }
 
   if (gen.promptOrderFormat == 'ChatML') {
@@ -298,7 +307,7 @@ export function getThirdPartyPayload(opts: AdapterProps, stops: string[] = []) {
     placeholders: opts.placeholders,
     lists: opts.lists,
     previous: opts.previous,
-    legacy_api: false
+    legacy_api: false,
   }
 
   return body

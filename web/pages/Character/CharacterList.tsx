@@ -1,5 +1,5 @@
 import { Component, Match, Show, Switch, createEffect, createMemo, createSignal } from 'solid-js'
-import { NewCharacter, characterStore, chatStore, settingStore } from '../../store'
+import { NewCharacter, characterStore, chatStore, settingStore, userStore } from '../../store'
 import { tagStore } from '../../store'
 import PageHeader from '../../shared/PageHeader'
 import Select from '../../shared/Select'
@@ -44,7 +44,7 @@ const CharacterList: Component = () => {
   const [t] = useTransContext()
 
   setComponentPageTitle(t('characters'))
-
+  const user = userStore()
   const cached = getListCache()
   const [query, setQuery] = useSearchParams()
   const [search, setSearch] = createSignal('')
@@ -63,6 +63,7 @@ const CharacterList: Component = () => {
     }
   })
 
+  /*
   const favorites = createMemo(() => {
     const field = sortField()
     const dir = sortDirection()
@@ -73,6 +74,7 @@ const CharacterList: Component = () => {
       .filter((ch) => !ch.tags || !ch.tags.some((t) => tags.hidden.includes(t)))
       .sort(getSortFunction(field, dir))
   })
+  */
 
   const sortedChars = createMemo(() => {
     const field = sortField()
@@ -143,22 +145,24 @@ const CharacterList: Component = () => {
         title={
           <div class="flex w-full justify-between">
             <div>{t('characters')}</div>
-            <div class="flex text-base">
-              <div class="px-1">
-                <Button onClick={() => setImport(true)}>
-                  <Import />
-                  <span class="hidden sm:inline">{t('import')}</span>
-                </Button>
-              </div>
-              <div class="px-1">
-                <A href="/character/create">
-                  <Button>
-                    <Plus />
-                    <span class="hidden sm:inline">{t('create')}</span>
+            <Show when={user.user?.admin}>
+              <div class="flex text-base">
+                <div class="px-1">
+                  <Button onClick={() => setImport(true)}>
+                    <Import />
+                    <span class="hidden sm:inline">{t('import')}</span>
                   </Button>
-                </A>
+                </div>
+                <div class="px-1">
+                  <A href="/character/create">
+                    <Button>
+                      <Plus />
+                      <span class="hidden sm:inline">{t('create')}</span>
+                    </Button>
+                  </A>
+                </div>
               </div>
-            </div>
+            </Show>
           </div>
         }
       />
@@ -196,7 +200,9 @@ const CharacterList: Component = () => {
             </div>
           </div>
 
-          <TagSelect class="m-1" />
+          <Show when={user.user?.admin}>
+            <TagSelect class="m-1" />
+          </Show>
         </div>
 
         <div class="flex flex-wrap">

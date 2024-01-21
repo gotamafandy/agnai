@@ -55,7 +55,11 @@ export namespace AppSchema {
     cid2: string
     name1: string
     source: string
-    authorNotes?: AppSchema.Character['insert']
+    author_note?: {
+      value: string
+      position: number
+      depth: number
+    }
     user_message: {
       name: string
       is_user: boolean
