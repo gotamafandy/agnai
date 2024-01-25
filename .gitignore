@@ -21,5 +21,6 @@ settings.json
 .model/
 !.github/*.js
 !sprites.js
+!tailwind.config.js
 /auth
 *.tsbuildinfo
