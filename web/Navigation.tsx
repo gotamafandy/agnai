@@ -212,18 +212,20 @@ const UserNavigation: Component = () => {
         </Item>
       </Show>
 
-      <Library />
-      <MultiItem>
-        <Item href="/presets" ariaLabel="Presets">
-          <Sliders aria-hidden="true" />
-          <span aria-hidden="true">{t('presets')}</span>
-        </Item>
-        <EndItem>
-          <A class="icon-button" href="/presets/new" role="button" aria-label="Add a new preset">
-            <Plus aria-hidden="true" />
-          </A>
-        </EndItem>
-      </MultiItem>
+      <Show when={user.user?.admin}>
+        <Library />
+        <MultiItem>
+          <Item href="/presets" ariaLabel="Presets">
+            <Sliders aria-hidden="true" />
+            <span aria-hidden="true">{t('presets')}</span>
+          </Item>
+          <EndItem>
+            <A class="icon-button" href="/presets/new" role="button" aria-label="Add a new preset">
+              <Plus aria-hidden="true" />
+            </A>
+          </EndItem>
+        </MultiItem>
+      </Show>
 
       <Show when={menu.flags.sounds}>
         <Sounds />
@@ -261,10 +263,11 @@ const UserNavigation: Component = () => {
             <HeartHandshake aria-hidden="true" />
           </ExternalLink>
         </Show>
-        <Item href="/settings" ariaLabel="Open settings page">
-          <Settings aria-hidden="true" />
-        </Item>
-
+        <Show when={user.user?.admin}>
+          <Item href="/settings" ariaLabel="Open settings page">
+            <Settings aria-hidden="true" />
+          </Item>
+        </Show>
         <Item
           ariaLabel={t('toggle_between_light_and_dark_mode')}
           onClick={() => {
