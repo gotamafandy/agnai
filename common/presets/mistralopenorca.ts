@@ -3,7 +3,7 @@ import { AppSchema } from '../types/schema'
 import { templates } from '/common/presets/templates'
 
 export const mistralOpenOrcaPresets = {
-  basic: {
+  mistralOpenOrca: {
     service: 'kobold',
     name: 'Campaign',
     maxTokens: 300,
