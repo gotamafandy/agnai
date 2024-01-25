@@ -1,6 +1,7 @@
 /.parcel-cache
 /dist
 /node_modules
+.idea/*
 .pnpm-debug.log
 .env
 config.json
