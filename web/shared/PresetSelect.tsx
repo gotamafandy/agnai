@@ -48,11 +48,17 @@ export const PresetSelect: Component<{
 
   const selectedLabel = createMemo(() => {
     const opt = props.options.find((o) => o.value === props.selected)
-    return opt === undefined
+
+
+    const label = opt === undefined
       ? 'None'
       : opt.value === user.user?.defaultPreset
       ? `${opt.label} (Default)`
       : `${opt.label} ${opt.custom ? '' : '(Built-in)'}`
+
+    console.log(label)
+
+    return label
   })
   const [showSelectModal, setShowSelectModal] = createSignal(false)
   const selectIdAndCloseModal = (id: string) => {
