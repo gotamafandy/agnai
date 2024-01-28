@@ -257,163 +257,167 @@ const CreateChatForm: Component<{
                 ignoreActive
               />
             </Card>
+            <TitleCard class="ml-2 mr-2">
+              {state.char?.description}
+            </TitleCard>
           </Show>
+          <Show when={user.admin}>
+            <Card>
+              <PresetSelect
+                options={presetOptions()}
+                selected={presetId()}
+                setPresetId={setPresetId}
+                warning={<ServiceWarning preset={selectedPreset()} />}
+              />
+            </Card>
 
-          <Card>
-            <PresetSelect
-              options={presetOptions()}
-              selected={presetId()}
-              setPresetId={setPresetId}
-              warning={<ServiceWarning preset={selectedPreset()} />}
-            />
-          </Card>
+            <Card>
+              <Select
+                fieldName="mode"
+                label={t('chat_mode')}
+                helperText={
+                  <div class="flex flex-col gap-2">
+                    <TitleCard>
+                      <Trans key="adventure_works_best_with_instruct_models">
+                        <b>ADVENTURE:</b> Works best with instruct models (OpenAI, Claude, Scale).
+                        This may not work as intended with other models.
+                      </Trans>
+                    </TitleCard>
+                    <TitleCard>
+                      <Trans key="companion_everything_is_permanent">
+                        <b>COMPANION:</b> Everything is permanent. You will not be able to: Edit Chat,
+                        Retry Message, Delete Messages, etc.
+                      </Trans>
+                    </TitleCard>
+                  </div>
+                }
+                items={[
+                  { label: t('conversation'), value: 'standard' },
+                  { label: t('companion'), value: 'companion' },
+                ]}
+                value={'standard'}
+              />
+            </Card>
 
-          <Card>
+            <Card>
+              <TextInput
+                class="text-sm"
+                fieldName="name"
+                label={t('conversation_name')}
+                helperText={
+                  <span>
+                    <Trans key="a_name_for_the_conversation_this_is_purely_for_labelling">
+                      A name for the conversation. This is purely for labelling. <i>(Optional)</i>
+                    </Trans>
+                  </span>
+                }
+                placeholder={t('untitled')}
+              />
+            </Card>
+            <Card>
+              <Toggle
+                fieldName="useOverrides"
+                value={useOverrides()}
+                onChange={(use) => setUseOverrides(use)}
+                label={t('override_character_definitions')}
+                helperText={t('overrides_will_only_apply_to_the_newly_created_conversation')}
+              />
+            </Card>
+
+            <Divider />
+
             <Select
-              fieldName="mode"
-              label={t('chat_mode')}
-              helperText={
-                <div class="flex flex-col gap-2">
-                  <TitleCard>
-                    <Trans key="adventure_works_best_with_instruct_models">
-                      <b>ADVENTURE:</b> Works best with instruct models (OpenAI, Claude, Scale).
-                      This may not work as intended with other models.
-                    </Trans>
-                  </TitleCard>
-                  <TitleCard>
-                    <Trans key="companion_everything_is_permanent">
-                      <b>COMPANION:</b> Everything is permanent. You will not be able to: Edit Chat,
-                      Retry Message, Delete Messages, etc.
-                    </Trans>
-                  </TitleCard>
-                </div>
-              }
-              items={[
-                { label: t('conversation'), value: 'standard' },
-                { label: t('companion'), value: 'companion' },
-              ]}
-              value={'standard'}
-            />
-          </Card>
-
-          <Card>
-            <TextInput
-              class="text-sm"
-              fieldName="name"
-              label={t('conversation_name')}
-              helperText={
-                <span>
-                  <Trans key="a_name_for_the_conversation_this_is_purely_for_labelling">
-                    A name for the conversation. This is purely for labelling. <i>(Optional)</i>
-                  </Trans>
-                </span>
-              }
-              placeholder={t('untitled')}
-            />
-          </Card>
-          <Card>
-            <Toggle
-              fieldName="useOverrides"
-              value={useOverrides()}
-              onChange={(use) => setUseOverrides(use)}
-              label={t('override_character_definitions')}
-              helperText={t('overrides_will_only_apply_to_the_newly_created_conversation')}
-            />
-          </Card>
-
-          <Divider />
-
-          <Select
-            fieldName="scenarioId"
-            label={t('scenario')}
-            helperText={t('the_scenario_to_use_for_this_conversation')}
-            items={currScenarios()}
-            onChange={(option) => setScenarioById(option.value)}
-            disabled={scenarios.length === 0}
-          />
-
-          <Card>
-            <TextInput
-              isMultiline
-              fieldName="greeting"
-              label={t('greeting')}
-              value={state.char?.greeting}
-              class="text-xs"
-              disabled={!useOverrides()}
-            ></TextInput>
-          </Card>
-          <Card>
-            <TextInput
-              isMultiline
-              fieldName="scenario"
+              fieldName="scenarioId"
               label={t('scenario')}
-              value={state.char?.scenario}
-              class="text-xs"
-              disabled={!useOverrides()}
-            ></TextInput>
-          </Card>
+              helperText={t('the_scenario_to_use_for_this_conversation')}
+              items={currScenarios()}
+              onChange={(option) => setScenarioById(option.value)}
+              disabled={scenarios.length === 0}
+            />
 
-          <Card>
-            <TextInput
-              isMultiline
-              fieldName="sampleChat"
-              label={t('sample_chat')}
-              value={state.char?.sampleChat}
-              class="text-xs"
-              disabled={!useOverrides()}
-            ></TextInput>
-          </Card>
-
-          <Card>
-            <Show when={state.char?.persona.kind !== 'text'}>
-              <Select
-                class="mb-2 text-sm"
-                fieldName="schema"
-                label={t('persona')}
-                items={options(t)}
-                value={state.char?.persona.kind || 'wpp'}
+            <Card>
+              <TextInput
+                isMultiline
+                fieldName="greeting"
+                label={t('greeting')}
+                value={state.char?.greeting}
+                class="text-xs"
                 disabled={!useOverrides()}
-              />
-            </Show>
-
-            <Show when={state.char?.persona.kind === 'text'}>
-              <Select
-                class="mb-2 text-sm"
-                fieldName="schema"
-                label={t('persona')}
-                items={[{ label: 'Plain text', value: 'text' }]}
-                value={'text'}
+              ></TextInput>
+            </Card>
+            <Card>
+              <TextInput
+                isMultiline
+                fieldName="scenario"
+                label={t('scenario')}
+                value={state.char?.scenario}
+                class="text-xs"
                 disabled={!useOverrides()}
-              />
-            </Show>
+              ></TextInput>
+            </Card>
 
-            <div class="w-full text-sm">
-              <Show when={state.char}>
-                <PersonaAttributes
-                  value={state.char?.persona.attributes}
-                  hideLabel
-                  plainText={state.char?.persona?.kind === 'text'}
-                  schema={state.char?.persona.kind}
+            <Card>
+              <TextInput
+                isMultiline
+                fieldName="sampleChat"
+                label={t('sample_chat')}
+                value={state.char?.sampleChat}
+                class="text-xs"
+                disabled={!useOverrides()}
+              ></TextInput>
+            </Card>
+
+            <Card>
+              <Show when={state.char?.persona.kind !== 'text'}>
+                <Select
+                  class="mb-2 text-sm"
+                  fieldName="schema"
+                  label={t('persona')}
+                  items={options(t)}
+                  value={state.char?.persona.kind || 'wpp'}
                   disabled={!useOverrides()}
                 />
               </Show>
-              <Show when={!state.char}>
-                <For each={state.chars}>
-                  {(item) => (
-                    <Show when={state.char?._id === item._id}>
-                      <PersonaAttributes
-                        value={item.persona.attributes}
-                        hideLabel
-                        plainText={item.persona.kind === 'text'}
-                        schema={state.char?.persona.kind}
-                        disabled={!useOverrides()}
-                      />
-                    </Show>
-                  )}
-                </For>
+
+              <Show when={state.char?.persona.kind === 'text'}>
+                <Select
+                  class="mb-2 text-sm"
+                  fieldName="schema"
+                  label={t('persona')}
+                  items={[{ label: 'Plain text', value: 'text' }]}
+                  value={'text'}
+                  disabled={!useOverrides()}
+                />
               </Show>
-            </div>
-          </Card>
+
+              <div class="w-full text-sm">
+                <Show when={state.char}>
+                  <PersonaAttributes
+                    value={state.char?.persona.attributes}
+                    hideLabel
+                    plainText={state.char?.persona?.kind === 'text'}
+                    schema={state.char?.persona.kind}
+                    disabled={!useOverrides()}
+                  />
+                </Show>
+                <Show when={!state.char}>
+                  <For each={state.chars}>
+                    {(item) => (
+                      <Show when={state.char?._id === item._id}>
+                        <PersonaAttributes
+                          value={item.persona.attributes}
+                          hideLabel
+                          plainText={item.persona.kind === 'text'}
+                          schema={state.char?.persona.kind}
+                          disabled={!useOverrides()}
+                        />
+                      </Show>
+                    )}
+                  </For>
+                </Show>
+              </div>
+            </Card>
+          </Show>
         </div>
 
         <Show when={!props.footer}>

@@ -110,6 +110,7 @@ export async function getPublicCharacters() {
       updatedAt: 1,
       voice: 1,
       voiceDisabled: 1,
+      visibility: 1
     })
     .toArray()
 
