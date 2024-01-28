@@ -500,7 +500,7 @@
   "prompt_message": "<1>This is an approximation. It may differ from the prompt actually used at the time. For authenticated users, the prompt generated on the server may contain more context as it retrieves messages from the database until the 'history' portion of your prompt is full. OpenAI Turbo has a different payload and is generated server-side only.</1><2>The entire 'budget' may not get used here as token counts may change due to formatting. E.g. OpenAI Turbo payloads are split into multiple messages which drastically alters token counts.</2>",
   "est_token_x": "Est. tokens: {{tokens}}",
   "could_not_initialize_speech_recognition_x": "Could not initialize speech recognition: {{message}}",
-  "notes_from_the_creator_of_x": "Notes from the creator of {name}",
+  "notes_from_the_creator_of_x": "Notes from the creator of {{name}}",
   "generate_message": "Generate Message",
   "you_have_been_removed_from_the_conversation": "You have been removed from the conversation",
   "exported": "Exported",
