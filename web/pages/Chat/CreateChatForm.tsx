@@ -99,10 +99,27 @@ const CreateChatForm: Component<{
     setScenario(scenarios.find((s) => s._id === scenarioId))
   }
 
-  const [presetId, setPresetId] = createSignal(
-    user.defaultPreset || (isEligible() ? 'agnai' : 'horde')
-  )
   const presets = presetStore((s) => s.presets)
+
+  const presetIdDefault = () => {
+    const opts = getPresetOptions(t, presets, { builtin: true }).filter(
+        (pre) => pre.value !== 'chat'
+    )
+
+    const campaignPresets = opts.filter((pre) => pre.label.toLowerCase().includes('campaign'))
+
+    let defaultPreset = user.defaultPreset
+
+    if (campaignPresets != null && campaignPresets.length > 0) {
+      defaultPreset = campaignPresets[0].value
+    }
+
+    // Your logic to compute the initial value goes here
+    return defaultPreset || (isEligible() ? 'agnai' : 'horde')
+  };
+
+  const [presetId, setPresetId] = createSignal(presetIdDefault())
+
   const presetOptions = createMemo(() => {
     const opts = getPresetOptions(t, presets, { builtin: true }).filter(
       (pre) => pre.value !== 'chat'

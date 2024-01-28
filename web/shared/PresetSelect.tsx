@@ -56,8 +56,6 @@ export const PresetSelect: Component<{
       ? `${opt.label} (Default)`
       : `${opt.label} ${opt.custom ? '' : '(Built-in)'}`
 
-    console.log(label)
-
     return label
   })
   const [showSelectModal, setShowSelectModal] = createSignal(false)
